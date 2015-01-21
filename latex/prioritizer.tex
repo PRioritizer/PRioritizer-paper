@@ -1,0 +1,102 @@
+\documentclass{sig-alternate}
+
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{times}
+\usepackage{balance}
+\usepackage{xspace}
+\usepackage{paralist}
+\usepackage{color}
+
+\clubpenalty = 10000
+\widowpenalty = 10000
+\displaywidowpenalty = 10000
+
+\begin{document}
+
+\newcommand{\ghtorrent}{ \textsc{ght}orrent\xspace}
+\newcommand{\api}{\textsc{api}\xspace}
+
+\newcommand{\nb}[3]{
+  \fcolorbox{black}{#2}{\bfseries\sffamily\scriptsize#1}
+    {\sf\small$\blacktriangleright$\textit{#3}$\blacktriangleleft$}
+}
+
+\newcommand\georgios[1]{\nb{Georgios}{yellow}{#1}}
+\newcommand\alberto[1]{\nb{Alberto}{cyan}{#1}}
+
+
+\newcommand{\hassanbox}[1]
+{
+  \vspace{0.29em}
+  \noindent
+  \fbox{
+  \begin{minipage}{0.46\textwidth}
+    \emph{\noindent #1}
+    \end{minipage}
+}}
+
+% Macros for qualitative research :-)
+\newcommand{\resp}[2]{{\sc R#1:} ``\emph{#2}''}
+\newcommand{\respnum}[1]{{\sc R#1}}
+\newcommand{\code}[1]{{\textsl{#1}}}
+
+\title{Prioritizer paper}
+
+\author{
+\alignauthor
+Erik van der Veen\\
+       \affaddr{Delft University of Technology}\\
+       \affaddr{Delft, the Netherlands}\\
+       \email{e.v.d.veen@tudelft.nl}
+\and
+Georgios Gousios\\
+       \affaddr{Radboud Universiteit Nijmegen}\\
+       \affaddr{Nijmegen, the Netherlands}\\
+       \email{georgios@cs.ru.nl}
+\and
+Andy Zaidman\\
+       \affaddr{Delft University of Technology}\\
+       \affaddr{Delft, the Netherlands}\\
+       \email{a.zaidman@tudelft.nl}
+}
+
+\maketitle
+
+\begin{abstract}
+
+\end{abstract}
+
+\category{D.2.7}{Software Engineering}{Distribution, Maintenance, and Enhancement}[Version control]
+\category{D.2.9}{Software Engineering}{Management}[Programming teams]
+
+\terms{Management}
+
+\keywords{pull-based development, pull request, distributed software development,
+empirical software engineering}
+
+\section{Introduction}
+
+\section{Background and Related Work}
+
+\section{Research Questions}
+
+\section{Study Design}
+
+\section{Results}
+
+\section{Discussion}
+
+\section{Limitations}
+
+\section{Conclusions}
+
+\bibliographystyle{IEEEtran}
+\bibliography{prioritizer}
+
+
+\end{document}
