@@ -30,6 +30,9 @@
 *.synctex.gz(busy)
 *.pdfsync
 
+## Build directory:
+build
+
 ## Auxiliary and intermediate files from other packages:
 
 # algorithms
