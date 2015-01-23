@@ -120,6 +120,27 @@ Because of this time complexity, we decided to leave this feature out of the ML 
 
 \end{description}
 
+\subsection{Training data}
+\label{sec:training}
+
+With the features described in the previous section we construct the training data.
+For reasons discussed earlier we do not include the \emph{target branch} and \emph{pairwise conflicts} features.
+There are different approaches of applying the pull-based development model \cite{GPD14}.
+Because of this we create a different training set for every different GitHub project.
+
+To train a prediction model so that it recognizes PRs that need attention, we have to provide it with actual examples of pull requests that we consider important.
+We define important pull requests as follows: the current state of a pull request is important when an action follows on that PR.
+An action can either be a merge, close, comment or review comment action.
+To find out what the important states were, we have to dig into the past of previously closed PRs.
+All the available information about the closed pull requests is extracted from \ghtorrent.
+To determine the state of PRs in the past we take a systematic approach by dividing the lifetime of each PR into time windows.
+The windows, with an interval of a day, contain a snapshot of the PR at the beginning of the window.
+A PR's snapshot consists of its commits, comments and author info at the time.
+Now that every PR is broken down into a list of consectutive snapshots, we can add information about the importance.
+When an action is carried out within a certain time window, the snapshot contained in that window is marked as \emph{important}.
+Snapshots of time windows that don't have any actions are not marked as important.
+The final training data consists of these snapshots, where each snapshot is a row in the training data.
+
 \subsection{Architecture}
 \label{sec:architecture}
 
@@ -184,11 +205,7 @@ If this is not the case, the first step is to train the prediction model on a se
 
 The training process consists of two phases, first the historical data must be retrieved and secondly the actual model must be trained.
 Information about closed pull request, their comments and their authors is harvested from \ghtorrent.
-Once all data is fetched, the lifetime of each PR is divided into time windows as explained in section \ref{sec:ml}.
-Then for each time window the state of a pull request, its comments and its author is determined.
-If a certain time window contains an event or action, then the previous window is marked as \emph{important}.
-All other windows are marked as \emph{not important}.
-Each of these time windows (with its state) is a row in the training data.
+Once all data is fetched, the lifetime of each PR is divided into time windows to construct the training data as explained in section \ref{sec:training}.
 When the training set is complete it is passed to the R program which trains the prediction model.
 
 The Random Forest machine learning algorithm, called in R, learns what features are important for dividing the PRs in two classifications (important vs. not important).
