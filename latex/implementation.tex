@@ -18,7 +18,7 @@ There is a large group of integrators that take a PR's age into account when man
 The name of the branch the PR is targeting in the base repository.
 It makes sense to use the target branch not as string, but as a categorical variable.
 Unfortunately the ML algorithm chokes if there is a new branch value that was not part of the training data.
-Therefore this feature is not included in the training data at all, but it is still available for manual sorting (see visualizer in \ref{sec:architecture}).
+Therefore this feature is not included in the training data at all, but it is still available for manual sorting (see visualizer in section~\ref{sec:architecture}).
 
 \item[Core Member]
 A boolean value indicating whether the author of the pull request is a core member of the project.
@@ -88,7 +88,7 @@ The heuristic used for the test code detection is simple, the value of the featu
 \item[Pairwise conflicts]
 When the conflicts among other pending PRs are known, it can be used to determine a merge order in which the number of conflicts is reduced.
 The actual number of conflicts is not reduced, but they can be concentrated in a particular merge action.
-Figure \ref{fig:conflicts-1} and \ref{fig:conflicts-3} show an example of the same set of three PRs but with different merge orders which result in a different amount of merge conflicts.
+Figure~\ref{fig:conflicts-1} and \ref{fig:conflicts-3} show an example of the same set of three PRs but with different merge orders which result in a different amount of merge conflicts.
 Pairwise conflicts are only checked among PRs which target the same branch, but nevertheless the amount of pairs can be very high.
 In the worst case, i.e. when all PRs target the same branch, the number of pairs to be checked is $O(n^2)$.
 
@@ -145,7 +145,7 @@ The final training data consists of these snapshots, where each snapshot is a ro
 \label{sec:architecture}
 
 Our implementation of the service consists of several components.
-Figure \ref{fig:architecture} shows a global overview of the architecture.
+Figure~\ref{fig:architecture} shows a global overview of the architecture.
 The \prioritizer service uses two main data sources: GitHub and the \ghtorrent project.
 The latter provides a message queue which can be used to subscribe to pull request events.
 When such an event arrives the \emph{watcher} component of the \prioritizer is notified (1) and starts prioritizing the project (2).
@@ -181,7 +181,7 @@ An up-to-date list of open PRs for that repository is fetched from GitHub throug
 In parallel the local git clone is updated with commits of the latest PRs.
 At the time both processes are finished, the list with PRs is enriched with data from \ghtorrent as well as the local git clone.
 
-The enrichment process adds e.g. information about the pull request author like the \emph{accept rate}, the \emph{contributor rate} and others described in section \ref{sec:features}.
+The enrichment process adds e.g. information about the pull request author like the \emph{accept rate}, the \emph{contributor rate} and others described in section~\ref{sec:features}.
 To retrieve information like the mergability and the \emph{pairwise conflicts} of the PRs the local git clone is used.
 Because of the $O(n^2)$ nature of the pairwise conflict process, this is the most time consuming feature of the service.
 After the enrichment process is done, the list is written to a repository specific cache.
@@ -205,7 +205,7 @@ If this is not the case, the first step is to train the prediction model on a se
 
 The training process consists of two phases, first the historical data must be retrieved and secondly the actual model must be trained.
 Information about closed pull request, their comments and their authors is harvested from \ghtorrent.
-Once all data is fetched, the lifetime of each PR is divided into time windows to construct the training data as explained in section \ref{sec:training}.
+Once all data is fetched, the lifetime of each PR is divided into time windows to construct the training data as explained in section~\ref{sec:training}.
 When the training set is complete it is passed to the R program which trains the prediction model.
 
 The Random Forest machine learning algorithm, called in R, learns what features are important for dividing the PRs in two classifications (important vs. not important).
@@ -220,7 +220,7 @@ The final list is then returned to the analyzer.
 
 \item[Visualizer]
 The visualizer is a user interface for the ordered list, it is a web application written in HTML and Javascript.
-An example view of the interface can be seen in figure \ref{fig:ui}.
+An example view of the interface can be seen in figure~\ref{fig:ui}.
 To make the development faster and easier we used AngularJS, a Javascript framework.
 The visualizer is a static website which accesses the JSON produced by the analyzer.
 When a specific repository is requested by the user, the corresponsding JSON file is parsed and showed on the web page.
@@ -228,7 +228,7 @@ When a specific repository is requested by the user, the corresponsding JSON fil
 The list is automatically sorted on the rank outputted by the predictor.
 However, the user is also able to sort or filter manually on different fields and features.
 On GitHub has only a limited set of fields available to sort and filter on.
-The visualizer interface provides more sort and filter options based on the features from section \ref{sec:features} e.g. conflicts, author properties or size.
+The visualizer interface provides more sort and filter options based on the features from section~\ref{sec:features} e.g. conflicts, author properties or size.
 Sorting on something trivial as the size of a PR is not support on GitHub while many integrators use it as manual prioritization feature \cite{GZSD15}.
 
 The interface tells users on which PR they have to focus first.
