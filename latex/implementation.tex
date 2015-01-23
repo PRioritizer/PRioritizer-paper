@@ -86,8 +86,38 @@ In these projects it is often expected that new PRs contain tests for the code t
 The heuristic used for the test code detection is simple, the value of the feature is true if the PR changes at least one file with ``test'' or ``spec'' in its file name.
 
 \item[Pairwise conflicts]
-When the conflicts among different PRs are known it can be used to determine a merge order in which the number of conflicts is reduced.
-Pairwise conflicts are only checked among PRs which target the same branch
+When the conflicts among other pending PRs are known, it can be used to determine a merge order in which the number of conflicts is reduced.
+The actual number of conflicts is not reduced, but they can be concentrated in a particular merge action.
+Figure \ref{fig:conflicts-1} and \ref{fig:conflicts-3} show an example of the same set of three PRs but with different merge orders which result in a different amount of merge conflicts.
+Pairwise conflicts are only checked among PRs which target the same branch, but nevertheless the amount of pairs can be very high.
+In the worst case, i.e. when all PRs target the same branch, the number of pairs to be checked is $O(n^2)$.
+
+A possible value of this feature could be the number of conflicts between other pending PRs.
+However, since checking the pairwise conflicts takes quadratic time it would take a large amount of time to create the training data which requires multiple time windows for each pull request.
+It boils down to $O(n^2 \cdot m)$ where $m$ is the average number of time windows per PR.
+Because of this time complexity, we decided to leave this feature out of the ML algorithm and only make it available for manual sorting.
+
+\begin{figure}
+  \centering
+  % Trim option's parameter order: left bottom right top
+  \includegraphics[height=25mm, clip ,trim = 0mm 7mm 0mm 7mm]{../figs/conflicts-1.pdf}
+  \caption[Merge diagram with one conflict]
+   {Merge diagram with one merge conflict.
+   Consider the following conflicted commit pairs: $(2,7)$, $(3,8)$, $(5,9)$.
+   The conflicts occur only in merge commit $10$.}
+  \label{fig:conflicts-1}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[height=25mm, clip ,trim = 0mm 7mm 0mm 7mm]{../figs/conflicts-3.pdf}
+  \caption[Merge diagram with three merge conflicts]
+   {Merge diagram with three merge conflicts.
+   Consider the following conflicted commit pairs: $(2,7)$, $(3,8)$, $(5,9)$.
+   The conflicts occur in each of the three merge commits $10,4,6$.}
+  \label{fig:conflicts-3}
+\end{figure}
+
 \end{description}
 
 \subsection{Architecture}
@@ -132,9 +162,7 @@ At the time both processes are finished, the list with PRs is enriched with data
 
 The enrichment process adds e.g. information about the pull request author like the \emph{accept rate}, the \emph{contributor rate} and others described in section \ref{sec:features}.
 To retrieve information like the mergability and the \emph{pairwise conflicts} of the PRs the local git clone is used.
-Pairwise conflicts are only checked among PRs which target the same branch, but nevertheless the amount of pairs can be very high.
-In the worst case, i.e. when all PRs target the same branch, the number of pairs to be checked is $O(n^2)$.
-Therefore this is the most time consuming feature of the service.
+Because of the $O(n^2)$ nature of the pairwise conflict process, this is the most time consuming feature of the service.
 After the enrichment process is done, the list is written to a repository specific cache.
 This enables a faster enriching process in future runs, especially the pairwise conflict check benefits from the cache.
 
