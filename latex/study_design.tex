@@ -1,6 +1,16 @@
 \section{Study Design}
 \label{sec:design}
 
+\subsection{Implementation}
+We wanted to prove by design whether it is possible to automatically prioritize PRs.
+Therefore we implemented a preliminary service, the \prioritizer service.
+It uses the \ghtorrent project extensively to extract data and machine learning to prioritize PRs based on a project's historical data.
+The service was developed in the Scala programming language and uses R for the machine learning part.
+As the service requires that the repositories it prioritizes are cloned on the server, it requires a lot of diskspace.
+This is why the service is deployed and being tested on the \ghtorrent servers.
+The prioritized repositories are available via the \ghtorrent project website \footnote{http://ghtorrent.org/prioritizer/\#/display/[owner]/[repo]/[secret]}.
+By using the \ghtorrent's pull request event queue, the prioritization of each repository can be kept up-to-date.
+
 \subsection{Participants}
 To evaluate the preliminary service we build, we tried to perform a qualitative study to the service's performance.
 We invited individual integrators to test the service on their own repositories and to fill in a short evaluation form.
