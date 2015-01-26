@@ -1,6 +1,21 @@
 \section{Study Design}
 \label{sec:design}
 
+To anwser our research questions we used different research techniques.
+We used quantitative data sources, proved by design and performed a small qualitative study.
+The sections describes the methods in detail.
+
+\subsection{Data}
+All the data used for prioritization originates from GitHub.
+However, it is not trivial to extract large amounts of data from GitHub.
+Although they offer an \api\footnote{https://developer.github.com/v3} to fetch various kinds of data, they limit the use at a rate of 5,000 \api calls per hour for a single user.
+
+To overcome this limitation and enable mining large portions of GitHub's historical data, the \ghtorrent project \cite{Gousi13} was initiated.
+It provides a scalable, queryable, offline mirror of the data offered through the GitHub \api.
+By monitoring GitHub's public event stream and storing those events, \ghtorrent harvests the data.
+Since the beginning of the project in 2012, \ghtorrent already collected more than 5 terabytes of data.
+We use \ghtorrent for getting large amounts of data for the prioritization process.
+
 \subsection{Implementation}
 We wanted to prove by design whether it is possible to automatically prioritize PRs.
 Therefore we implemented a preliminary service, the \prioritizer service.
