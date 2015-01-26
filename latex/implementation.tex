@@ -150,7 +150,7 @@ We ran the algorithm against each of the 20 projects with a 10-fold cross-valida
 The models were trained with 90\% of the training data, the remaining 10\% was used as test data.
 
 In table~\ref{tab:alg-compare} it can be seen how the three algorithms performed on average.
-Both LR and BN perform well on recall, but have a very low precision which makes it unusable for our application.
+Both LR and NB perform well on recall, but have a very low precision which makes it unusable for our application.
 The RF algorithm performs less on recall, but achieves a higher precision, which is more important in our case.
 High precision means that the algorithm returned substantially more relevant results than irrelevant.
 It seems that RF is the best at identifying the important pull requests.
