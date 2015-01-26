@@ -1,2 +1,30 @@
 \section{Study Design}
 \label{sec:design}
+
+\subsection{Participants}
+To evaluate the preliminary service we build, we tried to perform a qualitative study to the service's performance.
+We invited individual integrators to test the service on their own repositories and to fill in a short evaluation form.
+The selection of the participants was divided into two groups.
+
+The first group of integrators was obtained by recycling a list of people used by a previous questionnaire \cite{GZSD15}.
+Everyone who previously had indicated that they were available for a follow-up, were included in the first group.
+This gave us a group of 265 integrators.
+The repositories (244) they manage were also known from the questionnaire and were added to the prioritization service.
+
+The participants received an email containing a direct link to their up-to-date prioritized list of open PRs and a link to the evaluation form.
+Unfortunately, the response rate was not high.
+We received only 9 (3\%) forms that were filled in.
+Because of the low response rate we decided to contact a another group of people.
+
+The second group of people consisted of integrators of repositories that have a large amount of open PRs or a high average new PRs per day.
+This list of repositories was obtained by querying \ghtorrent.
+After we manually removed some repositories that seemed bogus or were used for test purposes, 148 repositories remained.
+Again, we cloned each of these repositories so that the prioritization service built an initial ranking.
+For each repository we queried \ghtorrent to get the top 3 integrators.
+Without duplicates from the first round, it left us with a group of 304 integrators.
+Because these repositories have a large amount of PRs, these integrators would feel the pain of prioritizing PRs manually the most.
+
+To encourage people to respond more, we included in our email a performance report \footnote{http://ghtorrent.org/pullreq-perf/} of their repository and an opportunity to get a \$50 Amazon voucher.
+This time we received 12 answers (4\%), again a low response rate.
+We also received 10 replies by email, 4 of those contained actual additional feedback.
+Which brings the total number of responses to 25.
