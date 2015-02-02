@@ -1,89 +1,76 @@
 \section{Modeling}
 \label{sec:modeling}
 
-To test whether it is possible to prioritize PRs we have designed a service that automatically tries to do just that.
+To test whether it is possible to prioritize PRs we have to model the data in such a way that an algorithm can learn and eventually predict what important pull requests are.
 
 \subsection{Features}
 \label{sec:features}
 
-For creating system that automatically creates an ordered list of PRs, we tried to use a machine algorithm that ranks the incoming PRs according a set of features.
-Most of the features we use are based on features that are used by many integrators to manually sort their PRs \cite{GZSD15}.
+For creating a system that automatically creates an ordered list of PRs, we tried to use a machine algorithm that ranks the incoming PRs according to a set of features.
+Most of the features we used (see table~\ref{tab:features}) are based on features that are used by many integrators to manually sort their PRs \cite{GZSD15}.
+
+\begin{table*}[ht]
+  \centering
+  \begin{tabular}{rp{20em}rrrrc}
+    \hline
+    \textbf{Feature} & \textbf{Description} & \textbf{5\%} & \textbf{Mean} & \textbf{Median} & \textbf{95\%} & \textbf{Plot} \\
+    \hline
+    Age & Minutes between the moment the PR was opened and the current time. & 0.00 & 167344.02 & 77760.00 & 646560.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-age.pdf} \\
+    Core Member & Boolean value indicating if the author of the PR is a project member. & 0.00 & 0.26 & 0.00 & 1.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-coreMember.pdf} \\
+    Intra-Branch & Boolean value indicating if the PR originates and targets the same project. & 0.00 & 0.06 & 0.00 & 1.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-intraBranch.pdf} \\
+    Contains Fix & Boolean value indicating if the pull request is a fix. & 0.00 & 0.18 & 0.00 & 1.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-containsFix.pdf} \\
+    Contribution Rate & The percentage of commits already authored by the PR's author in the project. & 0.00 & 0.03 & 0.00 & 0.14 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-commitRatio.pdf} \\
+    Accept Rate & The percentage of the author's PRs that already have been merged. & 0.00 & 0.45 & 0.50 & 0.90 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-pullRequestRatio.pdf} \\
+    Comments & Number of discussion comments in the PR. & 0.00 & 4.22 & 1.00 & 17.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-comments.pdf} \\
+    Review Comments & Number of code review comments in the PR. & 0.00 & 1.60 & 0.00 & 8.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-reviewComments.pdf} \\
+    Last Comment Mention & Boolean value indicating if the last comment of the PR contains a user mention. & 0.00 & 0.11 & 0.00 & 1.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-lastCommentMention.pdf} \\
+    Additions & Number of lines added by the PR. & 1.00 & 3649.86 & 41.00 & 6285.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-additions.pdf} \\
+    Deletions & Number of lines deleted by the PR. & 0.00 & 2271.32 & 7.00 & 2353.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-deletions.pdf} \\
+    Commits & Number of commits in the PR. & 1.00 & 6.52 & 2.00 & 22.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-commits.pdf} \\
+    Files & Number of files touched by the PR. & 1.00 & 53.88 & 2.00 & 125.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-files.pdf} \\
+    Has Test Code & Boolean value indicating if tests are included by the PR. & 0.00 & 0.35 & 0.00 & 1.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-hasTestCode.pdf} \\
+    \hline
+  \end{tabular}
+  \caption{Selected features and descriptive statistics. Histograms (red) are in log scale.}
+  \label{tab:features}
+\end{table*}
+
+There is a very large group of integrators that take the PR's \emph{size} into account when manually prioritizing their PRs.
+To capture this in our model we have four features (additions, deletions, commits, files) that depend on the size of the change.
+The \emph{age} seems also a important feature when prioritizing PRs manually, so we included it in our model.
+Also many integrators use the \emph{criticality of the fix}, \emph{urgency of feature} or \emph{type} of a PR as feature to prioritize.
+It is difficult to measureme the criticality or urgency of a PR, instead we try to determine the type of a PR in a trivial way.
+We define a boolean value indicating whether the pull request contains some sort of bug fix rather than e.g.\ a feature.
+This is really just an indication as the value is only true if the PR contains the string ``fix'' in its title.
+In general PRs with a fix are prioritized over other PRs.
+
+The \emph{contributors track record} is also taken into account by integrators.
+We have three features (core member, contribution rate, accept rate) regarding the track record of pull requesters.
+The value of these feature may vary a lot between different projects.
+There are integrators that look at PRs of known or trusted contributers first, their code is of known quality and often easier to review.
+On the other hand there are also integrators that value PRs of new contributors more than those of known contributers.
+The rationale behind this is that new contributers are feeling more valued when they receive a fast response on their PR.
+Possibly will that feeling encourage them to continue to contribute to the project.
+The accept rate feature suffers possibly from accuracy problems, as it is difficult to determine whether a PR is actually merged or not.
+A pull request can be merged in different ways \cite{GPD14}.
+Merges performed via the GitHub interface are easy to detect, but a PR which is squashed to one commit before it is merged is difficult to detect.
+
+As second prioritization criteria the \emph{existence of tests} emerges as an important feature.
+Some projects have a extensive test suite.
+In these projects it is often expected that new PRs contain tests for the code they add.
+The heuristic used for the test code detection is very trivial, the value of the feature is true if the PR changes at least one file with ``test'' or ``spec'' in its file name.
+
+\subsection{Manual features}
+\label{sec:manual}
+
+Some features we came up with are relevant for prioritizing, but are difficult too implement.
+Therefore these features are not included in the training data, but they are available for manual sorting (see visualizer in section~\ref{sec:implementation}).
 
 \begin{description}
-\item[Age]
-The number of minutes between the moment the PR was opened to the current time.
-There is a large group of integrators that take a PR's age into account when manually prioritizing their PRs.
-
 \item[Target Branch]
 The name of the branch the PR is targeting in the base repository.
 It makes sense to use the target branch not as string, but as a categorical variable.
 Unfortunately the ML algorithm chokes if there is a new branch value that was not part of the training data.
-Therefore this feature is not included in the training data at all, but it is still available for manual sorting (see visualizer in section~\ref{sec:architecture}).
-
-\item[Core Member]
-A boolean value indicating whether the author of the pull request is a core member of the project.
-Some integrators value PRs of members more than those of non-members.
-
-\item[Intra-Branch]
-A boolean value indicating whether the pull request is coming from another branch of the same base project.
-Creating these kind of PRs requires write access to the repository, so they can only be created by core members.
-
-\item[Contains Fix]
-A boolean value indicating whether the pull request contains some sort of bug fix rather than e.g. a feature.
-This is really just an indication as the value is only true if the PR contains the string ``fix'' in its title.
-In general PRs with a fix are prioritized over other PRs.
-
-\item[Contribution Rate]
-The number of commits that is already included in the project \emph{and} authored by the pull requester divided by the total number of commits in the project.
-I.e. the contribution rate of the PR author.
-There are integrators that look at PRs of known contributers first, their code is of known quality and often faster to review.
-On the other hand there are also integrators that value PRs of new contributors more than those of known contributers.
-The rationale behind this is that new contributers are feeling more valued when they receive a fast response on their PR.
-Possibly will that feeling encourage them to continue to contribute the to project.
-
-\item[Accept rate]
-The number of accepted (i.e. merged) pull requests authored by the current pull requester divided by the total number of PRs he/she authored.
-I.e. the accept rate of the PR author.
-A high accept rate can indicate that the author already gained some trust by the integrator, which can result in a higher prioritity.
-This feature suffers possibly from accuracy problems, as it is difficult to determine whether a PR is actually merged or not.
-A pull request can be merged in different ways \cite{GPD14}.
-A merge performed via the GitHub interface is easy to detect, but a PR which is squashed to one commit before the merge is difficult to detect.
-
-\item[Comments]
-There are different types of comments that can be made regarding a pull request.
-This feature counts the number of comments on the issue that is automatically created along the pull request.
-Usually a general dicussion about the PR takes place within the issue.
-The number of comments might indicate whether a PR needs more/less attention.
-
-\item[Review Comments]
-Review comments are comments on a portion of the unified diff of a pull request.
-These are separate from issue comments, which do not reference a portion of the unified diff.
-This feature counts the number of review comments on a PR.
-
-\item[Last Comment Mention]
-A boolean value indicating whether the last comment on a request (regardless of the comment type) contains a mention to a GitHub user.
-A comment with a mention contains ``@username'' anywhere in the body of the comment.
-The mention suggests that the user who is mentioned needs to take action.
-
-\item[Additions]
-The number of lines added by the pull request.
-Together with the following three features it captures the size of a PR.
-A very large group uses the size of the change to manually prioritize their PRs.
-
-\item[Deletions]
-The number of lines deleted by the pull request.
-
-\item[Commits]
-The number of commits contained by the pull request.
-
-\item[Files]
-The number of files changed by the pull request.
-
-\item[Has Test Code]
-A boolean value indicating whether the pull request contains changes to test files.
-Some projects have a extensive test suite.
-In these projects it is often expected that new PRs contain tests for the code they add.
-The heuristic used for the test code detection is simple, the value of the feature is true if the PR changes at least one file with ``test'' or ``spec'' in its file name.
 
 \item[Pairwise conflicts]
 When the conflicts among other pending PRs are known, it can be used to determine a merge order in which the number of conflicts is reduced.
@@ -92,10 +79,10 @@ Figure~\ref{fig:conflicts-1} and \ref{fig:conflicts-3} show an example of the sa
 Pairwise conflicts are only checked among PRs which target the same branch, but nevertheless the amount of pairs can be very high.
 In the worst case, i.e. when all PRs target the same branch, the number of pairs to be checked is $O(n^2)$.
 
-A possible value of this feature could be the number of conflicts between other pending PRs.
-However, since checking the pairwise conflicts takes quadratic time it would take a large amount of time to create the training data which requires multiple time windows for each pull request.
+Since checking the pairwise conflicts takes quadratic time it would take a large amount of time to create the training data which requires multiple time windows for each pull request (see section~\label{sec:training}).
 It boils down to $O(n^2 \cdot m)$ where $m$ is the average number of time windows per PR.
 Because of this time complexity, we decided to leave this feature out of the ML algorithm and only make it available for manual sorting.
+\end{description}
 
 \begin{figure}
   \centering
@@ -117,8 +104,6 @@ Because of this time complexity, we decided to leave this feature out of the ML 
    The conflicts occur in each of the three merge commits $10,4,6$.}
   \label{fig:conflicts-3}
 \end{figure}
-
-\end{description}
 
 \subsection{Training data}
 \label{sec:training}
