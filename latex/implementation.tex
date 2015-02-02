@@ -42,12 +42,17 @@ At the time both processes are finished, the list with PRs is enriched with data
 
 The enrichment process adds e.g. information about the pull request author like the \emph{accept rate}, the \emph{contributor rate} and others described in section~\ref{sec:features}.
 To retrieve information like the mergability and the \emph{pairwise conflicts} of the PRs the local git clone is used.
-Because of the $O(n^2)$ nature of the pairwise conflict process, this is the most time consuming feature of the service.
+The analyzer component is capable of merging pull requests very fast.
+This is possible due to the fact that merges are only done in-memory and are not written to the local repository on the disk.
+Since the merge is not written to the disk, the repository also doesn't need to be reset for the next merge.
+A rate of 60 merges/second can be achieved by the analyzer, depending on the size of the PRs.
+The actual speed is much higher since the use of a cache mechanism enables incremental pairwise conflicts checking.
+However, because of the $O(n^2)$ nature of the pairwise conflict process, this is still the most time consuming feature of the service.
 After the enrichment process is done, the list is written to a repository specific cache.
-This enables a faster enriching process in future runs, especially the pairwise conflict check benefits from the cache.
+This enables a faster enriching process in future runs.
 
 Some of the enrichment information (e.g. the mergability or number of comments) is also available directly via the GitHub \api.
-However, this data is only present when requesting a single PR, whereas a request for a list of 100 PRs lacks this sort of data.
+This data is present when requesting a single PR, whereas a request for a list of 100 PRs lacks this sort of data.
 This means that if we want this data directly from GitHub we have to create one \api request per pull request.
 When prioritizing PRs for a large amount of repositories it consumes also a large amount of \api requests and reaches GitHub's maximum of 5,000 requests/hour quickly.
 So, our solution to this problem is to use \ghtorrent instead.
