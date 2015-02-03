@@ -88,6 +88,33 @@ Email: a.e.zaidman@tudelft.nl}}
 
 \section{Introduction}
 
+Pull-based development as a distributed development model is a distinct way of
+collaborating in software development. In this model, the project's main
+repository is not shared among potential contributors; instead, contributors
+fork (clone) the repository and make their changes independent of each other.
+When a set of changes is ready to be submitted to the main repository, they
+create a pull request, which specifies a local branch to be merged with a branch
+in the main repository. A member of the project's core team (the
+\emph{integrator}) is responsible to inspect the changes and integrate them into
+the project's main development line.
+
+In earlier work~\cite{GZSD15}, we surveyed 750 pull request integrators from high
+volume projects and discovered that the top two challenges they face when
+working with pull requests are maintaining project quality and prioritizing work
+in the face of multiple concurrent pull requests. With respect to pull request
+prioritization our findings are summarized in Figure~\ref{fig:prioritization}.
+
+In this paper, we present the design and initial implementation of a prototype
+pull request prioritization tool, the \prioritizer. \prioritizer works as a
+priority inbox for pull requests: it examines all open pull requests and
+presents to project integrator the top 5 pull requests that need their immediate
+attention. It also offers an alternative view to Github's pull request
+interface, which allows developers to sort open pull requests on a multitude of
+criteria, ranging from the pull request's age to its number of pairwise
+conflicts. \prioritizer is a service-oriented architecture build on top of
+\ghtorrent: it uses \ghtorrent's data collection mechanisms to react in near
+real-time to changes to pull request state and databases as a source of easy to
+access metadata.
 
 \section{Prioritizer Design}
 \label{sec:design}
@@ -106,6 +133,16 @@ It provides a scalable, queryable, offline mirror of the data offered through th
 By monitoring GitHub's public event stream and storing those events, \ghtorrent harvests the data.
 Since the beginning of the project in 2012, \ghtorrent already collected more than 5 terabytes of data.
 We use \ghtorrent for getting large amounts of data for the prioritization process.
+
+\begin{figure}[t]
+  \begin{center}
+    \includegraphics[scale=0.44]{prioritization-criteria}
+  \end{center}
+  \caption{Prioritization criteria and their order of application as reported by
+  750 integrators.}
+  \label{fig:prioritization}
+\end{figure}
+
 
 \subsection{Implementation}
 We wanted to prove by design whether it is possible to automatically prioritize PRs.
@@ -144,6 +181,7 @@ To encourage people to respond more, we included in our email a performance repo
 This time we received 12 answers (4\%), again a low response rate.
 We also received 10 replies by email, 4 of those contained actual additional feedback.
 Which brings the total number of responses to 25.
+
 
 \section{Modeling}
 \label{sec:modeling}
