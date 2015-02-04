@@ -116,12 +116,92 @@ conflicts. \prioritizer is a service-oriented architecture build on top of
 real-time to changes to pull request state and databases as a source of easy to
 access metadata.
 
-\section{Prioritizer Design}
+
+\begin{figure}[t]
+  \begin{center}
+    \includegraphics[scale=0.44]{prioritization-criteria}
+  \end{center}
+  \caption{Prioritization criteria and their order of application as reported by
+  750 integrators.}
+  \label{fig:prioritization}
+\end{figure}
+
+
+\section{Prioritizing pull requests}
+
+\subsection{Modeling} Contrary to common approaches to work prioritization, which usually produce
+an optimal ordering for open work items based on optimization processes, we
+modelled the pull request prioritization using the priority inbox approach.
+What \prioritizer tries to do is present the integrators with the 3 pull
+requests that will need their immediate attention. \georgios{Need some related
+work support here: Andy?}
+
+To select the important pull requests, \prioritizer uses machine learning.
+Initially, time is split in configurable time windows (currently, 1 day). In
+each time window, it calculates a list of features for all pull requests
+(dependent variables, explained below) and a boolean response variable that
+indicates whether the received a user action in the following time window. A
+machine learning algorithm is then applied on historical data to build a model
+for predicting whether current pull requests will receive user updates in the
+following timewindow. The 3 pull requests with the highest probability to
+be updated are reported as the important ones.
+
+\subsection{Features}
+Our feature set was extracted by analysing the results of the survey and
+closely correspond to the developer's answers are reported in
+Figure~\ref{fig:prioritization}.
+
+
+\section{Service Design}
 \label{sec:design}
 
-To anwser our research questions we used different research techniques.
-We used quantitative data sources, proved by design and performed a small qualitative study.
-This section describes the methods in detail.
+At its core, \prioritizer uses machine learning to predict whether a pull
+request will become active within a given time frame. Excluding the repository
+mining aspect, which \prioritizer uses to retrieve inputs for its prediction
+engine, our goal is to build a highly scalable service, able to support any
+number of repositories. We therefore designed \prioritizer as a loosely-coupled
+architecture based on independent micro services. The overall architecture can be
+seen in Figure~\ref{fig:architecture}. Below, we present brief descriptions
+of the components comprising the \prioritizer.
+
+\paragraph{GHTorrent}
+\ghtorrent~\ref{G13} mirrors all data exposed from the GitHub \api in
+real time. As such, it maintains 2 databases, an unstructured one (MongDB)
+which contains the raw replies from the GitHub \api and a relational one
+(MySQL) which stores indexed historical data for all GitHub repositories.
+To keep track of what is happening on GitHub, is monitors the GitHub event
+timeline \api endpoint and publishes the retrieved data to a queue service
+(RabbitMQ) where multiple clients can connect to.
+\prioritizer uses \ghtorrent as both a data source of historical data and a
+source for live data.
+The live data that the \prioritizer is interested in are events on pull requests triggered by actions such as assignment of the pull request to a specific
+user or merging the pull request.
+
+\paragraph{Watcher}
+The watcher continuously listens to pull request event from \ghtorrent
+via a RabbitMQ message queue. It maintains a list of registered repositories
+and informs the Analyzer when pull request events for one of those is
+repositories is received.
+
+\paragraph{Analyzer}
+The analyzer analyzes a pull request event and extracts features
+
+
+
+\paragraph{Predictor}
+
+
+\paragraph{Visualizer}
+
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.5\textwidth]{../figs/architecture.pdf}
+  \caption[Diagram of the architecture]
+   {Diagram of the architecture. It shows the different data sources and components used by the \prioritizer service.}
+  \label{fig:architecture}
+\end{figure}
+
 
 \subsection{Data}
 All the data used for prioritization originates from GitHub.
@@ -133,16 +213,6 @@ It provides a scalable, queryable, offline mirror of the data offered through th
 By monitoring GitHub's public event stream and storing those events, \ghtorrent harvests the data.
 Since the beginning of the project in 2012, \ghtorrent already collected more than 5 terabytes of data.
 We use \ghtorrent for getting large amounts of data for the prioritization process.
-
-\begin{figure}[t]
-  \begin{center}
-    \includegraphics[scale=0.44]{prioritization-criteria}
-  \end{center}
-  \caption{Prioritization criteria and their order of application as reported by
-  750 integrators.}
-  \label{fig:prioritization}
-\end{figure}
-
 
 \subsection{Implementation}
 We wanted to prove by design whether it is possible to automatically prioritize PRs.
@@ -324,13 +394,6 @@ The data is now ready to be processed by the \emph{predictor} (5) which gives a 
 After the ordered list is returned to the analyzer (6), the output is generated and available for the \emph{visualizer} (7).
 Details about the different components are discussed in the following sections.
 
-\begin{figure}
-  \centering
-  \includegraphics[width=0.5\textwidth]{../figs/architecture.pdf}
-  \caption[Diagram of the architecture]
-   {Diagram of the architecture. It shows the different data sources and components used by the \prioritizer service.}
-  \label{fig:architecture}
-\end{figure}
 
 \subsection{Watcher}
 \label{sec:watcher}
@@ -491,9 +554,13 @@ So it seems the age has a positive effect on the prediction.
 
 Despite the fact that it should be possible to further improve the prediction model and because this is only a preliminary study to prioritizing pull requests, we decided to go forward with the current model.
 
-\subsection{Evaluation}
+\section{Initial Evaluation}
 \label{sec:evaluation}
 
+\subsection{Performance Evaluation}
+
+
+\subsection{User Evaluation}
 To test our service we invited a group of integrators that maintain open source projects.
 The integrators were asked to answer statements on a scale with the following answers: strongly disagree, disagree, agree and strongly agree.
 The values to the answers are ${-2, -1, 1, 2}$ respectively.
@@ -571,12 +638,15 @@ Users want to see why a PR is considered more important than others and have mor
 On the other hand the manual sorting and filtering options are positively evaluated.
 The Pairwise Conflicts, Target Branch and Size are the most popular.
 Although the latter two are fairly trivial features GitHub's interface doesn't support them.
-This might be the reason why the are rated usefull.
+This might be the reason why the are rated useful.
 Finally, a narrow majority indicated that they will use the service for their project.
 
 \section{Related Work}
 
 \section{Conclusions and Future Work}
+
+\section*{Acknowledgements} The authors would like to thank Audris Mockus for
+fruitful discussions that influenced the design of the prioritization algorithm.
 
 \bibliographystyle{IEEEtran}
 \bibliography{prioritizer}
