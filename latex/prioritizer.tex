@@ -137,19 +137,49 @@ requests that will need their immediate attention. \georgios{Need some related
 work support here: Andy?}
 
 To select the important pull requests, \prioritizer uses machine learning.
-Initially, time is split in configurable time windows (currently, 1 day). In
-each time window, it calculates a list of features for all pull requests
+Initially, time is split in configurable time windows (currently, 1 day long).
+In each time window, it calculates a list of features for all pull requests
 (dependent variables, explained below) and a boolean response variable that
 indicates whether the received a user action in the following time window. A
 machine learning algorithm is then applied on historical data to build a model
 for predicting whether current pull requests will receive user updates in the
-following timewindow. The 3 pull requests with the highest probability to
-be updated are reported as the important ones.
+following time window. The 3 pull requests with the highest probability to be
+updated are classified as the important ones.
 
 \subsection{Features}
 Our feature set was extracted by analysing the results of the survey and
 closely correspond to the developer's answers are reported in
-Figure~\ref{fig:prioritization}.
+Figure~\ref{fig:prioritization}. An overview of the selected features can
+be seen in Table~\ref{tab:features}.
+
+\begin{table*}[ht]
+  \centering
+  \begin{tabular}{rp{26em}rrrrc}
+    \hline
+    \textbf{Feature} & \textbf{Description} & \textbf{5\%} & \textbf{Mean} & \textbf{Median} & \textbf{95\%} & \textbf{Plot} \\
+    \hline
+    Age & Minutes between open and the current time window start time. & 0.00 & 167344.02 & 77760.00 & 646560.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-age.pdf} \\
+    Contribution Rate & The percentage of commits by the author currently in the project. & 0.00 & 0.03 & 0.00 & 0.14 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-commitRatio.pdf} \\
+    Accept Rate & The percentage of the author's other PRs that have been merged. & 0.00 & 0.45 & 0.50 & 0.90 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-pullRequestRatio.pdf} \\
+    Additions & Number of lines added. & 1.00 & 3649.86 & 41.00 & 6285.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-additions.pdf} \\
+    Deletions & Number of lines deleted. & 0.00 & 2271.32 & 7.00 & 2353.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-deletions.pdf} \\
+    Commits & Number of commits. & 1.00 & 6.52 & 2.00 & 22.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-commits.pdf} \\
+    Files & Number of files touched. & 1.00 & 53.88 & 2.00 & 125.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-files.pdf} \\
+    Comments & Number of discussion comments. & 0.00 & 4.22 & 1.00 & 17.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-comments.pdf} \\
+    Review Comments & Number of code review comments. & 0.00 & 1.60 & 0.00 & 8.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-reviewComments.pdf} \\
+    Core Member & Is the author a project member? & 0.00 & 0.26 & 0.00 & 1.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-coreMember.pdf} \\
+    Intra-Branch & Are the source and target repositories the same? & 0.00 & 0.06 & 0.00 & 1.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-intraBranch.pdf} \\
+    Contains Fix & Is the pull request an issue fix? & 0.00 & 0.18 & 0.00 & 1.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-containsFix.pdf} \\
+    Last Comment Mention & Does the last comment contain a user mention? & 0.00 & 0.11 & 0.00 & 1.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-lastCommentMention.pdf} \\
+    Has Test Code & Are tests included? & 0.00 & 0.35 & 0.00 & 1.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-hasTestCode.pdf} \\
+%    Target Branch & The name of the target branch. & - & - & - & - & \\
+%    Pairwise Conflicts & The number of pairwise conflicts with other PRs. & - & - & - & - & \\
+    \hline
+  \end{tabular}
+  \caption{Selected features and descriptive statistics. The calculation unit
+  is a pull request. Histograms (red) are in log scale.}
+  \label{tab:features}
+\end{table*}
 
 
 \section{Service Design}
@@ -264,33 +294,6 @@ To test whether it is possible to prioritize PRs we have to model the data in su
 For creating a system that automatically creates an ordered list of PRs, we tried to use a machine algorithm that ranks the incoming PRs according to a set of features.
 Most of the features we used (see table~\ref{tab:features}) are based on features that are used by many integrators to manually sort their PRs \cite{GZSD15}.
 
-\begin{table*}[ht]
-  \centering
-  \begin{tabular}{rp{26em}rrrrc}
-    \hline
-    \textbf{Feature} & \textbf{Description} & \textbf{5\%} & \textbf{Mean} & \textbf{Median} & \textbf{95\%} & \textbf{Plot} \\
-    \hline
-    Age & Minutes between the moment the PR was opened and the current time. & 0.00 & 167344.02 & 77760.00 & 646560.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-age.pdf} \\
-    Contribution Rate & The percentage of commits already authored by the PR's author in the project. & 0.00 & 0.03 & 0.00 & 0.14 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-commitRatio.pdf} \\
-    Accept Rate & The percentage of the author's PRs that already have been merged. & 0.00 & 0.45 & 0.50 & 0.90 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-pullRequestRatio.pdf} \\
-    Additions & Number of lines added by the PR. & 1.00 & 3649.86 & 41.00 & 6285.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-additions.pdf} \\
-    Deletions & Number of lines deleted by the PR. & 0.00 & 2271.32 & 7.00 & 2353.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-deletions.pdf} \\
-    Commits & Number of commits in the PR. & 1.00 & 6.52 & 2.00 & 22.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-commits.pdf} \\
-    Files & Number of files touched by the PR. & 1.00 & 53.88 & 2.00 & 125.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-files.pdf} \\
-    Comments & Number of discussion comments in the PR. & 0.00 & 4.22 & 1.00 & 17.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-comments.pdf} \\
-    Review Comments & Number of code review comments in the PR. & 0.00 & 1.60 & 0.00 & 8.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-reviewComments.pdf} \\
-    Core Member & Boolean value indicating if the author of the PR is a project member. & 0.00 & 0.26 & 0.00 & 1.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-coreMember.pdf} \\
-    Intra-Branch & Boolean value indicating if the PR originates and targets the same project. & 0.00 & 0.06 & 0.00 & 1.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-intraBranch.pdf} \\
-    Contains Fix & Boolean value indicating if the pull request is a fix. & 0.00 & 0.18 & 0.00 & 1.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-containsFix.pdf} \\
-    Last Comment Mention & Boolean value indicating if the last comment of the PR contains a user mention. & 0.00 & 0.11 & 0.00 & 1.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-lastCommentMention.pdf} \\
-    Has Test Code & Boolean value indicating if tests are included by the PR. & 0.00 & 0.35 & 0.00 & 1.00 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-features/hist-hasTestCode.pdf} \\
-    Target Branch & The name of the branch that the PR targets in the main repository (manual). & - & - & - & - & \\
-    Pairwise Conflicts & The number of pairwise conflicts among other PRs (manual). & - & - & - & - & \\
-    \hline
-  \end{tabular}
-  \caption{Selected features and descriptive statistics. Histograms (red) are in log scale.}
-  \label{tab:features}
-\end{table*}
 
 There is a very large group of integrators that take the PR's \emph{size} into account when manually prioritizing their PRs.
 To capture this in our model we have four features (additions, deletions, commits, files) that depend on the size of the change.
