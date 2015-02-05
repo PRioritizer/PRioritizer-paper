@@ -290,7 +290,7 @@ main predictor process through file exchange.
 
 \paragraph{Visualizer}
 
-The visualizer receives 
+The visualizer receives
 
 In practice, it is implemented as a static web application written in HTML and Javascript.
 An example view of the interface can be seen in figure~\ref{fig:ui}.
@@ -338,32 +338,32 @@ and feature pruning to no avail.
 \begin{table}
   \begin{tabular}{lrrrrc}
     \hline
-    \textbf{Algorithm} & \textbf{5\%} & \textbf{Mean} & \textbf{Median} & \textbf{95\%} & \textbf{Histogram} \\
+    \textbf{Algorithm} & \textbf{5\%} & \textbf{Mean} & \textbf{SD} & \textbf{95\%} & \textbf{Histogram} \\
     \hline
 
     \bf{Logistic Regression}\\
-    Area Under Curve & 0.71 & 0.81 & 0.81 & 0.91 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-LRauc.pdf} \\
-    Accuracy & 0.52 & 0.62 & 0.62 & 0.72 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-LRacc.pdf} \\
-    Precision & 0.06 & 0.36 & 0.30 & 0.88 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-LRprec.pdf} \\
-    Recall & 0.66 & 0.83 & 0.84 & 0.95 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-LRrec.pdf} \\
-    F1 & 0.12 & 0.45 & 0.44 & 0.77 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-LRf1.pdf} \\
+    Area Under Curve & 0.71 & 0.81 & 0.06 & 0.91 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-LRauc.pdf} \\
+    Accuracy & 0.52 & 0.62 & 0.06 & 0.72 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-LRacc.pdf} \\
+    Precision & 0.06 & 0.36 & 0.25 & 0.88 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-LRprec.pdf} \\
+    Recall & 0.66 & 0.83 & 0.09 & 0.95 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-LRrec.pdf} \\
+    F1 & 0.12 & 0.45 & 0.21 & 0.77 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-LRf1.pdf} \\
 
     \bf{Naive Bayes}\\
-    Area Under Curve & 0.65 & 0.75 & 0.75 & 0.86 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-NBauc.pdf} \\
-    Accuracy & 0.52 & 0.60 & 0.60 & 0.69 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-NBacc.pdf} \\
-    Precision & 0.06 & 0.34 & 0.28 & 0.82 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-NBprec.pdf} \\
-    Recall & 0.63 & 0.79 & 0.80 & 0.94 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-NBrec.pdf} \\
-    F1 & 0.11 & 0.42 & 0.41 & 0.73 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-NBf1.pdf} \\
+    Area Under Curve & 0.65 & 0.75 & 0.06 & 0.86 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-NBauc.pdf} \\
+    Accuracy & 0.52 & 0.60 & 0.06 & 0.69 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-NBacc.pdf} \\
+    Precision & 0.06 & 0.34 & 0.23 & 0.82 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-NBprec.pdf} \\
+    Recall & 0.63 & 0.79 & 0.09 & 0.94 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-NBrec.pdf} \\
+    F1 & 0.11 & 0.42 & 0.20 & 0.73 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-NBf1.pdf} \\
 
     \bf{Random Forest}\\
-    Area Under Curve & 0.81 & 0.89 & 0.89 & 0.95 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-RFauc.pdf} \\
-    Accuracy & 0.73 & 0.86 & 0.87 & 0.96 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-RFacc.pdf} \\
-    Precision & 0.37 & 0.66 & 0.69 & 0.90 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-RFprec.pdf} \\
-    Recall & 0.36 & 0.62 & 0.63 & 0.84 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-RFrec.pdf} \\
-    F1 & 0.38 & 0.63 & 0.63 & 0.87 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-RFf1.pdf} \\
+    Area Under Curve & 0.81 & 0.89 & 0.05 & 0.95 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-RFauc.pdf} \\
+    Accuracy & 0.73 & 0.86 & 0.07 & 0.96 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-RFacc.pdf} \\
+    Precision & 0.37 & 0.66 & 0.16 & 0.90 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-RFprec.pdf} \\
+    Recall & 0.36 & 0.62 & 0.15 & 0.84 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-RFrec.pdf} \\
+    F1 & 0.38 & 0.63 & 0.15 & 0.87 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-RFf1.pdf} \\
     \hline
   \end{tabular}
-  \caption[Comparision of algorithms]{Scores and distributions of algorithm performance across projects. \erik{As the distributions look fairly normal can you report the mean and standard deviation instead of the median?}}
+  \caption[Comparision of algorithms]{Scores and distributions of algorithm performance across projects.}
   \label{tab:alg-compare}
 \end{table}
 
