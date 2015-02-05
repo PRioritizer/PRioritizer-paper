@@ -191,29 +191,23 @@ model, namely additions, deletions, commits and files.
 Developers also deem the \textsl{age} of the pull request important: we measure
 it within the examined time window as the elapsed time between the time window
 start and the pull request creation.
-\erik{please indicate HOW we calculate the most important of the remaining
-features (NOT how difficult it is to calculate them :))}
-
+\georgios{Is this better?}
 The \textsl{contributor's track record} is also taken into account by
-integrators. To approximate the track record, we use three features: if the
-contributor is a core member, we expect his/her pull requests to take precede
-contribution rate, accept rate. The value of these feature may vary a lot
-between different projects. There are integrators that look at PRs of known or
-trusted contributers first, their code is of known quality and often easier to
-review. On the other hand there are also integrators that value PRs of new
-contributors more than those of known contributers. The rationale behind this is
-that new contributers are feeling more valued when they receive a fast response
-on their PR. Possibly will that feeling encourage them to continue to contribute
-to the project. The accept rate feature suffers possibly from accuracy problems,
-as it is difficult to determine whether a PR is actually merged or not. A pull
-request can be merged in different ways [3]. Merges performed via the GitHub
-interface are easy to detect, but a PR which is squashed to one commit before it
-is merged is difficult to detect.  As second prioritization criteria the
-existence of tests emerges as an important feature. Some projects have a ex-
-tensive test suite. In these projects it is often expected that new PRs contain
-tests for the code they add. The heuristic used for the test code detection is
-very trivial, the value of the feature is true if the PR changes at least one
-file with “test” or “spec” in its file name.
+integrators. To approximate the track record, we use 3 features: if the
+contributor is a core member, his/her contribution rate and accept rate. The
+value of these features may vary a lot between projects. Some integrators look
+at PRs of known or trusted contributers first, their code is of known quality
+and often easier to review. But there are also integrators that value PRs of new
+contributors more than those of known developers to encourage them to continue
+to contribute. The contribution rate is calculated by taking the number of
+commits which are authored by the pull requester and included in the project
+divided by the total number of commits in the project. We define the accept
+rate as the number of merged PRs created by the pull requester divided by
+his/her total number of created PRs. A feature that emerges as important second
+prioritization criteria is the \textsl{existence of tests}. In some projects it
+is often expected that new PRs contain tests for the code they modify. The
+heuristic used for the test code detection is very trivial, the value is true if
+the PR changes at least one file with ``test'' or ``spec'' in its file name.
 
 \section{Design and Implementation}
 \label{sec:design}
