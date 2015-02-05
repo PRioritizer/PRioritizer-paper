@@ -219,17 +219,22 @@ the PR changes at least one file with ``test'' or ``spec'' in its file name.
   \label{fig:architecture}
 \end{figure}
 
-At its core, \prioritizer uses machine learning to predict whether a pull
-request will become active within a given time frame. Excluding the repository
-mining aspect, which \prioritizer uses to retrieve inputs for its prediction
-engine, our goal is to build a highly scalable service, able to support any
-number of repositories. We therefore designed \prioritizer as a loosely-coupled
-architecture based on independent micro services. The overall architecture can be
-seen in Figure~\ref{fig:architecture}. Below, we present brief descriptions
-of the components comprising the \prioritizer.
+We designed \prioritizer as a loosely-coupled architecture based on independent
+micro services. Figure~\ref{fig:architecture} shows a global overview of the
+architecture.  The \prioritizer service uses two main data sources: GitHub and
+the \ghtorrent project.  When an event arrives the \emph{watcher} component is
+notified (1) and starts prioritizing the project (2).  When the \emph{analyzer}
+gets a prioritization request it fetches a list of open pull requests from
+GitHub and the pull request contents to the local Git clone (3).  When the data
+is fetched, the analyzer each pull request in the list with data from the local
+clone and \ghtorrent (4).  The data is now ready to be processed by the
+\emph{predictor} (5), which generates an ordering for the pull requests.  After
+the ordered list is returned to the analyzer (6), the output is generated and
+available for the \emph{visualizer} (7).  Details about the design of each
+individual component are presented in the following sections.
 
 \paragraph{GHTorrent}
-\ghtorrent~\ref{Gousi13} mirrors all data exposed from the GitHub \api in
+\ghtorrent~\cite{G13} mirrors all data exposed from the GitHub \api in
 real time. As such, it maintains 2 databases, an unstructured one (MongDB)
 which contains the raw replies from the GitHub \api and a relational one
 (MySQL) which stores indexed historical data for all GitHub repositories.
@@ -242,14 +247,14 @@ The live data that the \prioritizer is interested in are events on pull requests
 user or merging the pull request.
 
 \paragraph{Watcher}
-The watcher continuously listens to pull request event from \ghtorrent
+The watcher listens to pull request event from \ghtorrent
 via a RabbitMQ message queue. It maintains a list of registered repositories
-and informs the Analyzer when pull request events for one of those is
+and informs the analyzer when pull request events for one of those is
 repositories is received.
 
 \paragraph{Analyzer}
 The analyzer analyzes a pull request events and computers values for
-the features presented above. To do so, for each repository,
+the features presented in Section~\ref{sec:features}. To do so, for each repository,
 it maintains a local Git checkout and a list of open pull requests.
 On every pull request event, it updates both the Git repository with
 a branch corresponding to the source branch of the pull request
@@ -295,7 +300,8 @@ feedback on the prioritization; the user can report if the proposed
 prioritization order is correct and change it to indicate what is the correct
 one.\erik{Is this still true?}
 
-The visualizer is implemented as a static web application (Figure~\ref{fig:ui}).
+The visualizer is implemented as a static web application; a
+screenshot of its main page can be seen in Figure~\ref{fig:ui}).
 
 \begin{figure}
   \centering
@@ -330,7 +336,7 @@ and feature pruning to no avail.
 \begin{table}
   \begin{tabular}{lrrrrc}
     \hline
-    \textbf{Algorithm} & \textbf{5\%} & \textbf{Mean} & \textbf{SD} & \textbf{95\%} & \textbf{Histogram} \\
+    \textbf{Algorithm} & \textbf{5\%} & \textbf{Mean} & \textbf{StDev} & \textbf{95\%} & \textbf{Histogram} \\
     \hline
 
     \bf{Logistic Regression}\\
@@ -388,8 +394,9 @@ of pull request handling practices. Moreover, user directed evaluation (already
 implemented in the visualizer) can help retrofit our machine learning model
 with user preferences.
 
-\subsection{Performance Evaluation}
-\erik{Can you provide a couple of paragraphs here? Describe our hardware, the}
+\subsection{Performance characteristics}
+\erik{Can you provide a couple of paragraphs here? Describe our hardware setup, how fast the merge detection is done, how fast it takes to process a pull request
+from start to finish, how much time it takes to import a repository etc}
 
 \subsection{User Evaluation}
 
