@@ -133,8 +133,8 @@ access metadata.
 an optimal ordering for open work items based on optimization processes, we
 modelled the pull request prioritization using the priority inbox approach.
 What \prioritizer tries to do is present the integrators with the 3 pull
-requests that will need their immediate attention. \georgios{Need some related
-work support here: Andy?}
+requests that will need their immediate attention. \andy{Need some related
+work support here}
 
 To select the important pull requests, \prioritizer uses machine learning.
 Initially, time is split in configurable time windows (currently, 1 day long).
@@ -144,7 +144,8 @@ indicates whether the received a user action in the following time window. A
 machine learning algorithm is then applied on historical data to build a model
 for predicting whether current pull requests will receive user updates in the
 following time window. The 3 pull requests with the highest probability to be
-updated are classified as the important ones.
+updated are classified as the important ones. \erik{Please check what I write
+here is correct}.
 
 \subsection{Features}
 Our feature set was extracted by analysing the results of the survey and
@@ -176,14 +177,54 @@ be seen in Table~\ref{tab:features}.
 %    Pairwise Conflicts & The number of pairwise conflicts with other PRs. & - & - & - & - & \\
     \hline
   \end{tabular}
-  \caption{Selected features and descriptive statistics. The calculation unit
-  is a pull request. Histograms (red) are in log scale.}
+  \caption{Selected features and descriptive statistics for predicting pull
+  request activity. The calculation unit is a pull request.
+  Histograms (red) are in log scale.}
   \label{tab:features}
 \end{table*}
 
 
-\section{Service Design}
+One of the top parameters that developers examine when prioritizing is the
+\textsl{size of change}. We therefore include 4 related features in our
+model, namely additions, deletions, commits and files.
+Developers also deem the \textsl{age} of the pull request important: we measure
+it within the examined time window as the elapsed time between the time window
+start and the pull request creation.
+\erik{please indicate HOW we calculate the most important of the remaining
+features (NOT how difficult it is to calculate them :))}
+
+The \textsl{contributor's track record} is also taken into account by
+integrators. To approximate the track record, we use three features: if the
+contributor is a core member, we expect his/her pull requests to take precede
+contribution rate, accept rate. The value of these feature may vary a lot
+between different projects. There are integrators that look at PRs of known or
+trusted contributers first, their code is of known quality and often easier to
+review. On the other hand there are also integrators that value PRs of new
+contributors more than those of known contributers. The rationale behind this is
+that new contributers are feeling more valued when they receive a fast response
+on their PR. Possibly will that feeling encourage them to continue to contribute
+to the project. The accept rate feature suffers possibly from accuracy problems,
+as it is difficult to determine whether a PR is actually merged or not. A pull
+request can be merged in different ways [3]. Merges performed via the GitHub
+interface are easy to detect, but a PR which is squashed to one commit before it
+is merged is difficult to detect.  As second prioritization criteria the
+existence of tests emerges as an important feature. Some projects have a ex-
+tensive test suite. In these projects it is often expected that new PRs contain
+tests for the code they add. The heuristic used for the test code detection is
+very trivial, the value of the feature is true if the PR changes at least one
+file with “test” or “spec” in its file name.
+
+\section{Design and Implementation}
 \label{sec:design}
+
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.5\textwidth]{../figs/architecture.pdf}
+  \caption[Diagram of the architecture]
+   {Diagram of the architecture. It shows the different data sources and components used by the \prioritizer service.}
+  \label{fig:architecture}
+\end{figure}
 
 At its core, \prioritizer uses machine learning to predict whether a pull
 request will become active within a given time frame. Excluding the repository
@@ -214,259 +255,46 @@ and informs the Analyzer when pull request events for one of those is
 repositories is received.
 
 \paragraph{Analyzer}
-The analyzer analyzes a pull request event and extracts features
+The analyzer analyzes a pull request events and computers values for
+the features presented above. To do so, for each repository,
+it maintains a local Git checkout and a list of open pull requests.
+On every pull request event, it updates both the Git repository with
+a branch corresponding to the source branch of the pull request
+and the open pull request list with fresh information from \ghtorrent.
+Then, it uses both \ghtorrent and information into the raw pull request
+data to calculate all features in the current time window.
 
+The analyzer also implements a high-performance pairwise conflict detection
+mechanism for branches that works by simulating pairwise merges in memory. To
+avoid recomputing valid branch merges, it caches intermediate results.
 
+To maintain high performance, all independent processes (Git repository
+updating, conflict detection etc) are initiated asynchronously and their
+results are gradually composed towards a final set of metrics for the processed
+pull request.
 
 \paragraph{Predictor}
+The predictor calculates the probability that a specific pull request will
+be active within the next time window. To do so, it maintains a per repository
+model extracted by applying a machine learning algorithm to existing pull
+requests and then uses the computed model to calculate probabilities for
+currently updated pull requests.
 
+The predictor is split in two parts: the historic data calculator and
+the machine learning implementation. The first shares code (but not the
+runtime) with the analyzer as both tools basically compute the same
+values in different time windows. To capitalize on the wealth of available
+options in statistical environments such as R, the machine learning
+part is implemented as a different service that communicates with the
+main predictor process through file exchange.
 
 \paragraph{Visualizer}
 
+The visualizer receives 
 
-\begin{figure}
-  \centering
-  \includegraphics[width=0.5\textwidth]{../figs/architecture.pdf}
-  \caption[Diagram of the architecture]
-   {Diagram of the architecture. It shows the different data sources and components used by the \prioritizer service.}
-  \label{fig:architecture}
-\end{figure}
-
-
-\subsection{Data}
-All the data used for prioritization originates from GitHub.
-However, it is not trivial to extract large amounts of data from GitHub.
-Although they offer an \api\footnote{https://developer.github.com/v3} to fetch various kinds of data, they limit the use at a rate of 5,000 \api calls per hour for a single user.
-
-To overcome this limitation and enable mining large portions of GitHub's historical data, the \ghtorrent project \cite{Gousi13} was initiated.
-It provides a scalable, queryable, offline mirror of the data offered through the GitHub \api.
-By monitoring GitHub's public event stream and storing those events, \ghtorrent harvests the data.
-Since the beginning of the project in 2012, \ghtorrent already collected more than 5 terabytes of data.
-We use \ghtorrent for getting large amounts of data for the prioritization process.
-
-\subsection{Implementation}
-We wanted to prove by design whether it is possible to automatically prioritize PRs.
-Therefore we implemented a preliminary service, the \prioritizer service.
-It uses the \ghtorrent project extensively to extract data and machine learning to prioritize PRs based on a project's historical data.
-The service was developed in the Scala programming language and uses R for the machine learning part.
-As the service requires that the repositories it prioritizes are cloned on the server, it requires a lot of diskspace.
-This is why the service is deployed and being tested on the \ghtorrent servers.
-The prioritized repositories are available via the \ghtorrent project website \footnote{http://ghtorrent.org/prioritizer/\#/display/[owner]/[repo]/[secret]}.
-By using the \ghtorrent's pull request event queue, the prioritization of each repository can be kept up-to-date.
-
-\subsection{Participants}
-To evaluate the preliminary service we build, we tried to perform a qualitative study to the service's performance.
-We invited individual integrators to test the service on their own repositories and to fill in a short evaluation form.
-The selection of the participants was divided into two groups.
-
-The first group of integrators was obtained by recycling a list of people used by a previous questionnaire \cite{GZSD15}.
-Everyone who previously had indicated that they were available for a follow-up, were included in the first group.
-This gave us a group of 265 integrators.
-The repositories (244) they manage were also known from the questionnaire and were added to the prioritization service.
-
-The participants received an email containing a direct link to their up-to-date prioritized list of open PRs and a link to the evaluation form.
-Unfortunately, the response rate was not high.
-We received only 9 (3\%) forms that were filled in.
-Because of the low response rate we decided to contact a another group of people.
-
-The second group of people consisted of integrators of repositories that have a large amount of open PRs or a high average new PRs per day.
-This list of repositories was obtained by querying \ghtorrent.
-After we manually removed some repositories that seemed bogus or were used for test purposes, 148 repositories remained.
-Again, we cloned each of these repositories so that the prioritization service built an initial ranking.
-For each repository we queried \ghtorrent to get the top 3 integrators.
-Without duplicates from the first round, it left us with a group of 304 integrators.
-Because these repositories have a large amount of PRs, these integrators would feel the pain of prioritizing PRs manually the most.
-
-To encourage people to respond more, we included in our email a performance report \footnote{http://ghtorrent.org/pullreq-perf/} of their repository and an opportunity to get a \$50 Amazon voucher.
-This time we received 12 answers (4\%), again a low response rate.
-We also received 10 replies by email, 4 of those contained actual additional feedback.
-Which brings the total number of responses to 25.
-
-
-\section{Modeling}
-\label{sec:modeling}
-
-To test whether it is possible to prioritize PRs we have to model the data in such a way that an algorithm can learn and eventually predict what important pull requests are.
-
-\subsection{Features}
-\label{sec:features}
-
-For creating a system that automatically creates an ordered list of PRs, we tried to use a machine algorithm that ranks the incoming PRs according to a set of features.
-Most of the features we used (see table~\ref{tab:features}) are based on features that are used by many integrators to manually sort their PRs \cite{GZSD15}.
-
-
-There is a very large group of integrators that take the PR's \emph{size} into account when manually prioritizing their PRs.
-To capture this in our model we have four features (additions, deletions, commits, files) that depend on the size of the change.
-The \emph{age} seems also a important feature when prioritizing PRs manually, so we included it in our model.
-Also many integrators use the \emph{criticality of the fix}, \emph{urgency of feature} or \emph{type} of a PR as feature to prioritize.
-It is difficult to measureme the criticality or urgency of a PR, instead we try to determine the type of a PR in a trivial way.
-We define a boolean value indicating whether the pull request contains some sort of bug fix rather than e.g.\ a feature.
-This is really just an indication as the value is only true if the PR contains the string ``fix'' in its title.
-In general PRs with a fix are prioritized over other PRs.
-
-The \emph{contributors track record} is also taken into account by integrators.
-We have three features (core member, contribution rate, accept rate) regarding the track record of pull requesters.
-The value of these feature may vary a lot between different projects.
-There are integrators that look at PRs of known or trusted contributers first, their code is of known quality and often easier to review.
-On the other hand there are also integrators that value PRs of new contributors more than those of known contributers.
-The rationale behind this is that new contributers are feeling more valued when they receive a fast response on their PR.
-Possibly will that feeling encourage them to continue to contribute to the project.
-The accept rate feature suffers possibly from accuracy problems, as it is difficult to determine whether a PR is actually merged or not.
-A pull request can be merged in different ways \cite{GPD14}.
-Merges performed via the GitHub interface are easy to detect, but a PR which is squashed to one commit before it is merged is difficult to detect.
-
-As second prioritization criteria the \emph{existence of tests} emerges as an important feature.
-Some projects have a extensive test suite.
-In these projects it is often expected that new PRs contain tests for the code they add.
-The heuristic used for the test code detection is very trivial, the value of the feature is true if the PR changes at least one file with ``test'' or ``spec'' in its file name.
-
-\subsection{Pairwise conflicts}
-\label{sec:pairwise}
-
-Some features we came up with are relevant for prioritizing, but are difficult too implement.
-Therefore these features are not included in the training data, but they are available for manual sorting (see visualizer in section~\ref{sec:visualizer}).
-\emph{Pairwise conflicts} is one of these features.
-
-When the conflicts among other pending PRs are known, it can be used to determine a merge order in which the number of conflicts is reduced.
-The actual number of conflicts is not reduced, but they can be concentrated in a particular merge action.
-Figure~\ref{fig:conflicts-1} and \ref{fig:conflicts-3} show an example of the same set of three PRs but with different merge orders which result in a different amount of merge conflicts.
-Pairwise conflicts are only checked among PRs which target the same branch, but nevertheless the amount of pairs can be very high.
-In the worst case, i.e. when all PRs target the same branch, the number of pairs to be checked is $O(n^2)$.
-
-Since checking the pairwise conflicts takes quadratic time it would take a large amount of time to create the training data which requires multiple time windows for each pull request (see section~\label{sec:training}).
-It boils down to $O(n^2 \cdot m)$ where $m$ is the average number of time windows per PR.
-Because of this time complexity, we decided to leave this feature out of the ML algorithm and only make it available for manual sorting.
-
-\begin{figure}
-  \centering
-  % Trim option's parameter order: left bottom right top
-  \includegraphics[height=25mm, clip ,trim = 0mm 7mm 0mm 7mm]{../figs/conflicts-1.pdf}
-  \caption[Merge diagram with one conflict]
-   {Merge diagram with one merge conflict.
-   Consider the following conflicted commit pairs: $(2,7)$, $(3,8)$, $(5,9)$.
-   The conflicts occur only in merge commit $10$.}
-  \label{fig:conflicts-1}
-\end{figure}
-
-\begin{figure}
-  \centering
-  \includegraphics[height=25mm, clip ,trim = 0mm 7mm 0mm 7mm]{../figs/conflicts-3.pdf}
-  \caption[Merge diagram with three merge conflicts]
-   {Merge diagram with three merge conflicts.
-   Consider the following conflicted commit pairs: $(2,7)$, $(3,8)$, $(5,9)$.
-   The conflicts occur in each of the three merge commits $10,4,6$.}
-  \label{fig:conflicts-3}
-\end{figure}
-
-\subsection{Training data}
-\label{sec:training}
-
-With the features described in the previous section we construct the training data.
-For reasons discussed earlier we do not include the \emph{target branch} and \emph{pairwise conflicts} features.
-There are different approaches of applying the pull-based development model \cite{GPD14}.
-Because of this we create a different training set for every different GitHub project.
-
-To train a prediction model so that it recognizes PRs that need attention, we have to provide it with actual examples of pull requests that we consider important.
-We define important pull requests as follows: the current state of a pull request is important when an action follows on that PR.
-An action can either be a merge, close, comment or review comment action.
-To find out what the important states were, we have to dig into the past of previously closed PRs.
-All the available information about the closed pull requests is extracted from \ghtorrent.
-To determine the state of PRs in the past we take a systematic approach by dividing the lifetime of each PR into time windows.
-The windows, with an interval of a day, contain a snapshot of the PR at the beginning of the window.
-A PR's snapshot consists of its commits, comments and author info at the time.
-Now that every PR is broken down into a list of consectutive snapshots, we can add information about the importance.
-When an action is carried out within a certain time window, the snapshot contained in that window is marked as \emph{important}.
-Snapshots of time windows that don't have any actions are not marked as important.
-The final training data consists of these snapshots, where each snapshot is a row in the training data.
-
-\section{Implementation}
-\label{sec:implementation}
-
-To test whether it is possible to prioritize PRs we have designed a service that automatically tries to do just that.
-
-Our implementation of the service consists of several components.
-Figure~\ref{fig:architecture} shows a global overview of the architecture.
-The \prioritizer service uses two main data sources: GitHub and the \ghtorrent project.
-The latter provides a message queue which can be used to subscribe to pull request events.
-When such an event arrives the \emph{watcher} component of the \prioritizer is notified (1) and starts prioritizing the project (2).
-When the \emph{analyzer} gets a prioritization request it fetches the list of PRs from GitHub (3).
-At the same time it fetches the pull request contents to the local Git clone.
-When the data is fetched the analyzer starts enriching the PR list with data from the local clone and \ghtorrent (4).
-This step calculates and adds several of the features to the PRs.
-The data is now ready to be processed by the \emph{predictor} (5) which gives a certain rank to the PRs.
-After the ordered list is returned to the analyzer (6), the output is generated and available for the \emph{visualizer} (7).
-Details about the different components are discussed in the following sections.
-
-
-\subsection{Watcher}
-\label{sec:watcher}
-At the beginning of the chain we have the watcher, it is implemented in the Scala programming language.
-The watcher continuously listens to pull request event from \ghtorrent via a RabbitMQ message queue.
-Pull request events are triggered when a PR is assigned, unassigned, labeled, unlabeled, opened, closed, reopened, or synchronized.
-The PR events of all public repositories on GitHub are received by the watcher.
-Incoming events from repositories that are not currently tracked are discarded by the watcher.
-If an event is received from a tracked repository the analyzer is invoked for that specific repository.
-
-\subsection{Analyzer}
-\label{sec:analyzer}
-The component at the center of the service is the analyzer, it is also implemented in Scala.
-When the analyzer kicks in, it receives a repository name from the watcher.
-An up-to-date list of open PRs for that repository is fetched from GitHub through the GitHub \api.
-In parallel the local git clone is updated with commits of the latest PRs.
-At the time both processes are finished, the list with PRs is enriched with data from \ghtorrent as well as the local git clone.
-
-The enrichment process adds e.g. information about the pull request author like the \emph{accept rate}, the \emph{contributor rate} and others described in section~\ref{sec:features}.
-To retrieve information like the mergability and the \emph{pairwise conflicts} of the PRs the local git clone is used.
-The analyzer component is capable of merging pull requests very fast.
-This is possible due to the fact that merges are only done in-memory and are not written to the local repository on the disk.
-Since the merge is not written to the disk, the repository also doesn't need to be reset for the next merge.
-A rate of 60 merges/second can be achieved by the analyzer, depending on the size of the PRs.
-The actual speed is much higher since the use of a cache mechanism enables incremental pairwise conflicts checking.
-However, because of the $O(n^2)$ nature of the pairwise conflict process, this is still the most time consuming feature of the service.
-After the enrichment process is done, the list is written to a repository specific cache.
-This enables a faster enriching process in future runs.
-
-Some of the enrichment information (e.g. the mergability or number of comments) is also available directly via the GitHub \api.
-This data is present when requesting a single PR, whereas a request for a list of 100 PRs lacks this sort of data.
-This means that if we want this data directly from GitHub we have to create one \api request per pull request.
-When prioritizing PRs for a large amount of repositories it consumes also a large amount of \api requests and reaches GitHub's maximum of 5,000 requests/hour quickly.
-So, our solution to this problem is to use \ghtorrent instead.
-
-Before the final output is written to the disk, the predictor is invoked on the enriched PR list.
-A list of ordered PRs is returned back from the predictor to the analyzer.
-Details about this process are in the next paragraph.
-The analyzer completes its process with writing the ordered list of PRs to the disk in JSON format, which will be picked up by the visualizer.
-
-\subsection{Predictor}
-\label{sec:predictor}
-The predictor assigns a rank to every pull request, it is partly written in Scala and partly in R.
-When the predictor receiver a list of PRs it first checks if there is already a up-to-date prediction model.
-If this is not the case, the first step is to train the prediction model on a set of PRs from the past.
-
-The training process consists of two phases, first the historical data must be retrieved and secondly the actual model must be trained.
-Information about closed pull request, their comments and their authors is harvested from \ghtorrent.
-Once all data is fetched, the lifetime of each PR is divided into time windows to construct the training data as explained in section~\ref{sec:training}.
-When the training set is complete it is passed to the R program which trains the prediction model.
-
-The Random Forest machine learning algorithm, called in R, learns what features are important for dividing the PRs in two classifications (important vs. not important).
-The resulting model is saved to the disk for later use when predicting the ranks.
-
-Once we have a up-to-date prediction model, we can use it for ordering the PR list.
-The list and the model are feeded to the prediction algorithm in R.
-Using the prediction model each PR is given a probability that it belongs to the \emph{important} cluster.
-A PR with a high probability means that it is more likely to receive an event or action (from the user) soon.
-We interpret PRs with a high probability as PRs that need attention, therefore the ranked list of PRs is obtained by ordering the list on the importance probability from high to low.
-The final list is then returned to the analyzer.
-
-\subsection{Visualizer}
-\label{sec:visualizer}
-The visualizer is a user interface for the ordered list, it is a web application written in HTML and Javascript.
+In practice, it is implemented as a static web application written in HTML and Javascript.
 An example view of the interface can be seen in figure~\ref{fig:ui}.
-To make the development faster and easier we used AngularJS, a Javascript framework.
-The visualizer is a static website which accesses the JSON produced by the analyzer.
-When a specific repository is requested by the user, the corresponsding JSON file is parsed and showed on the web page.
-
-The list is automatically sorted on the rank outputted by the predictor.
+The list is initially sorted on the rank output as calculated by the predictor.
 However, the user is also able to sort or filter manually on different fields and features.
 On GitHub has only a limited set of fields available to sort and filter on.
 The visualizer interface provides more sort and filter options based on the features from section~\ref{sec:features} e.g. conflicts, author properties or size.
@@ -485,25 +313,27 @@ Futhermore, if a user wants more information about a specific PR, he/she can cli
   \label{fig:ui}
 \end{figure}
 
-\section{Results}
+\section{Initial Evaluation}
+\label{sec:evaluation}
 
-\label{sec:results}
-
-This section shows the results of our model performance and the user evaluation of our service implementation.
-
-\subsection{Machine Learning}
+\subsection{How good are the activity predictions?}
 \label{sec:learning}
 
-We used the training data of 475 projects on three commonly used machine learning algorithms.
-The projects varied in size and the algorithms we tested are: Logistic Regression, Naive Bayes and Random Forest.
-We ran the three algorithms against each project with a 10-fold cross-validation.
-The models were trained with 90\% of the training data, the remaining 10\% was used as test data.
+To select one algorithm to base our prediction engine on, we used historical
+data from 475 projects and three commonly used machine learning algorithms:
+Logistic Regression, Na\"ive Bayes and Random Forests. The target of the test
+was to compare how well models build with each algorithm could predict whether a
+pull request would become active in the next time window against the ground
+truth.  We ran the three algorithms against each project with a 10-fold random
+selection cross-validation. The models were trained with 90\% training data and
+10\% testing data.
 
-In table~\ref{tab:alg-compare} it can be seen how the three algorithms performed.
-Both LR and NB perform well on recall, but have a very low precision which makes it unusable for our application.
-The RF algorithm performs less on recall, but achieves a higher precision, which is more important in our case.
-High precision means that the algorithm returned substantially more relevant results than irrelevant.
-It seems that RF is the best at identifying the important pull requests.
+In table~\ref{tab:alg-compare}, we see how the three algorithms performed. Both
+Logistic Regression and Na\"ive Bayes perform badly on precision and accuracy,
+which were our top priorities.  On the other hand, Random Forests perform well
+over all, even though the recall performance leaves something to be desired. To
+improve the performance, we tried several optimisations like dataset balancing
+and feature pruning to no avail.
 
 \begin{table}
   \begin{tabular}{lrrrrc}
@@ -533,37 +363,44 @@ It seems that RF is the best at identifying the important pull requests.
     F1 & 0.38 & 0.63 & 0.63 & 0.87 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-RFf1.pdf} \\
     \hline
   \end{tabular}
-  \caption[Comparision of algorithms]{Comparision of algorithms. Scores and distributions of algorithm performance.}
+  \caption[Comparision of algorithms]{Scores and distributions of algorithm performance across projects. \erik{As the distributions look fairly normal can you report the mean and standard deviation instead of the median?}}
   \label{tab:alg-compare}
 \end{table}
 
-The results in table~\ref{tab:alg-compare} led us believe that there was room for improvement.
-Since the important snapshot data vs. unimportant data is very imbalanced, we decided to tune the balance.
-However, balancing the data turned out to make things worse.
+%It is interesting to see that the age is a very dominant factor when we look at
+%the feature importance in figure~\ref{fig:feature-importance}.  This is probably
+%the case because it is very likely that new pull requests receive comments
+%within the first few days.  Since the age feature is so dominant it could impact
+%the model in a bad way.  When we turned this particular feature off, the results
+%were worse instead.  So it seems the age has a positive effect on the
+%prediction.
+%
+%\begin{figure}
+%  \centering
+%  \includegraphics[width=0.45\textwidth]{../figs/mean-decrease-accuracy.pdf}
+%  \caption[Plot of feature importance]
+%   {Plot of feature importance of the aggregated projects. The age of the pull request is the dominant factor.}
+%  \label{fig:feature-importance}
+%\end{figure}
 
-It is interesting to see that the age is a very dominant factor when we look at the feature importance in figure~\ref{fig:feature-importance}.
-This is probably the case because it is very likely that new pull requests receive comments within the first few days.
-Since the age feature is so dominant it could impact the model in a bad way.
-When we turned this particular feature off, the results were worse instead.
-So it seems the age has a positive effect on the prediction.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.45\textwidth]{../figs/mean-decrease-accuracy.pdf}
-  \caption[Plot of feature importance]
-   {Plot of feature importance of the aggregated projects. The age of the pull request is the dominant factor.}
-  \label{fig:feature-importance}
-\end{figure}
-
-Despite the fact that it should be possible to further improve the prediction model and because this is only a preliminary study to prioritizing pull requests, we decided to go forward with the current model.
-
-\section{Initial Evaluation}
-\label{sec:evaluation}
+The results show that using Random Forests, we can predict with relatively
+high accuracy (86\% on average) whether a pull request in a given time frame
+of its life will be active in the next one. This is an important result
+for building a prioritizer service, as it gives us the confidence to
+recommend a default ordering to the service user. Moreover, as the
+quality of the prediction varies across projects, we can build preprocessing
+phases to determine whether default recommendations can be useful.
+However, there is room for improvement: by selecting more representative
+features, or custom features for each project, we can account for variations
+of pull request handling practices. Moreover, user directed evaluation (already
+implemented in the visualizer) can help retrofit our machine learning model
+with user preferences.
 
 \subsection{Performance Evaluation}
-
+\erik{Can you provide a couple of paragraphs here? Describe our hardware, the}
 
 \subsection{User Evaluation}
+
 To test our service we invited a group of integrators that maintain open source projects.
 The integrators were asked to answer statements on a scale with the following answers: strongly disagree, disagree, agree and strongly agree.
 The values to the answers are ${-2, -1, 1, 2}$ respectively.
