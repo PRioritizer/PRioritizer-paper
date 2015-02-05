@@ -145,7 +145,8 @@ machine learning algorithm is then applied on historical data to build a model
 for predicting whether current pull requests will receive user updates in the
 following time window. The 3 pull requests with the highest probability to be
 updated are classified as the important ones. \erik{Please check what I write
-here is correct}.
+here is correct} \georgios{It almost correct. All PRs are sorted on probability.
+And the top 5 is marked as important if $p > 0.5$.}.
 
 \subsection{Features}
 Our feature set was extracted by analysing the results of the survey and
