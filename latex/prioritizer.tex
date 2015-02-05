@@ -144,11 +144,10 @@ indicates whether the received a user action in the following time window. A
 machine learning algorithm is then applied on historical data to build a model
 for predicting whether current pull requests will receive user updates in the
 following time window. The 3 pull requests with the highest probability to be
-updated are classified as the important ones. \erik{Please check what I write
-here is correct} \georgios{It almost correct. All PRs are sorted on probability.
-And the top 5 is marked as important if $p > 0.5$.}.
+updated are classified as the important ones. 
 
 \subsection{Features}
+\label{sec:features}
 Our feature set was extracted by analysing the results of the survey and
 closely correspond to the developer's answers are reported in
 Figure~\ref{fig:prioritization}. An overview of the selected features can
@@ -212,7 +211,6 @@ the PR changes at least one file with ``test'' or ``spec'' in its file name.
 \section{Design and Implementation}
 \label{sec:design}
 
-
 \begin{figure}
   \centering
   \includegraphics[width=0.5\textwidth]{../figs/architecture.pdf}
@@ -231,7 +229,7 @@ seen in Figure~\ref{fig:architecture}. Below, we present brief descriptions
 of the components comprising the \prioritizer.
 
 \paragraph{GHTorrent}
-\ghtorrent~\ref{G13} mirrors all data exposed from the GitHub \api in
+\ghtorrent~\ref{Gousi13} mirrors all data exposed from the GitHub \api in
 real time. As such, it maintains 2 databases, an unstructured one (MongDB)
 which contains the raw replies from the GitHub \api and a relational one
 (MySQL) which stores indexed historical data for all GitHub repositories.
@@ -285,26 +283,25 @@ main predictor process through file exchange.
 
 \paragraph{Visualizer}
 
-The visualizer receives
+The visualizer visualizes a list of pull requests, enriched with extra
+information extracted from the analysis and prediction phases.  To address
+reported deficiencies in GitHub's pull request user interface (also discovered
+through our user survey), the visualizer supports filtering pull requests based
+on specific branches, originating in specific authors, having conflicts or tests
+and being in a mergable state.  It also supports sorting pull requests based on
+a multitude of criteria, including all features reported in
+Section~\ref{sec:features}.  A key feature of the visualizer is support for user
+feedback on the prioritization; the user can report if the proposed
+prioritization order is correct and change it to indicate what is the correct
+one.\erik{Is this still true?}
 
-In practice, it is implemented as a static web application written in HTML and Javascript.
-An example view of the interface can be seen in figure~\ref{fig:ui}.
-The list is initially sorted on the rank output as calculated by the predictor.
-However, the user is also able to sort or filter manually on different fields and features.
-On GitHub has only a limited set of fields available to sort and filter on.
-The visualizer interface provides more sort and filter options based on the features from section~\ref{sec:features} e.g. conflicts, author properties or size.
-Sorting on something trivial as the size of a PR is not support on GitHub while many integrators use it as manual prioritization feature \cite{GZSD15}.
-
-The interface tells users on which PR they have to focus first.
-However, to actually take action the user still has to go to GitHub's interface.
-To make it easier for the user each PR in the list has a link to the GitHub version.
-Futhermore, if a user wants more information about a specific PR, he/she can click the PR to reveal more details about the features.
+The visualizer is implemented as a static web application (Figure~\ref{fig:ui}).
 
 \begin{figure}
   \centering
   \includegraphics[width=0.5\textwidth]{../figs/interface.pdf}
   \caption[The user interface]
-   {The user interface. It shows an ordered list of pull requests that need attention.}
+  {The user interface. It shows an ordered list of pull requests that need attention. \erik{Please provide a screen shot with one PR expanded, also showing the feedback option}}
   \label{fig:ui}
 \end{figure}
 
