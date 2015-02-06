@@ -411,8 +411,23 @@ with user preferences.
 \end{figure*}
 
 \subsection{Performance characteristics}
-\erik{Can you provide a couple of paragraphs here? Describe our hardware setup, how fast the merge detection is done, how fast it takes to process a pull request
-from start to finish, how much time it takes to import a repository etc}
+
+We hosted our service on a single machine with 16 GB of RAM memory and a Xeon
+E5-1607 Quad core CPU running at 3GHz. On average it is capable of prioritizing
+6.7 pull requests per second and performs 40 pairwise merges per second. In
+practice it is around 400 pairwise merges per second due to the use of caching.
+The whole process, including updating the local Git clone, takes on average
+1.1 minute to prioritize one repository.
+
+When multiple events for big repositories arrive at the same time, a single
+\prioritizer instance processes them sequentially, which can cause a delay of a
+few minutes. This can be solved by starting more watcher instances that
+process events from the queue in parallel.
+
+The \prioritizer runs incrementally on a set of pull requests. An initial import
+with model training of a repository takes much longer than a normal run. Usually
+it takes not more than a few minutes, but can take up to almost an hour
+depending on the size of the project and of its pull requests.
 
 \subsection{User Evaluation}
 
