@@ -75,7 +75,7 @@ Email: a.e.zaidman@tudelft.nl}}
 \maketitle
 
 \begin{abstract}
-
+In previous work we observed that in the pull-based development model integrators face challenges with regard to prioritizing work in the face of multiple concurrent pull requests. In this paper we present the design and initial implementation of a prototype pull request prioritisation tool called \prioritzer . The results from our user study indicate that users need more insight into how the priority ranking is established to make \prioritizer really useful.
 \end{abstract}
 
 %\category{D.2.7}{Software Engineering}{Distribution, Maintenance, and Enhancement}[Version control]
@@ -112,7 +112,7 @@ attention. It also offers an alternative view to Github's pull request
 interface, which allows developers to sort open pull requests on a multitude of
 criteria, ranging from the pull request's age to its number of pairwise
 conflicts. \prioritizer is a service-oriented architecture build on top of
-\ghtorrent: it uses \ghtorrent's data collection mechanisms to react in near
+\ghtorrent~\cite{G13}: it uses \ghtorrent's data collection mechanisms to react in near
 real-time to changes to pull request state and databases as a source of easy to
 access metadata.
 
