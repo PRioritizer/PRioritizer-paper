@@ -76,7 +76,7 @@ Email: a.e.zaidman@tudelft.nl}}
 \maketitle
 
 \begin{abstract}
-
+In previous work we observed that in the pull-based development model integrators face challenges with regard to prioritizing work in the face of multiple concurrent pull requests. In this paper we present the design and initial implementation of a prototype pull request prioritisation tool called \prioritzer . The results from our user study indicate that users need more insight into how the priority ranking is established to make \prioritizer really useful.
 \end{abstract}
 
 %\category{D.2.7}{Software Engineering}{Distribution, Maintenance, and Enhancement}[Version control]
@@ -113,7 +113,7 @@ attention. It also offers an alternative view to Github's pull request
 interface, which allows developers to sort open pull requests on a multitude of
 criteria, ranging from the pull request's age to its number of pairwise
 conflicts. \prioritizer is a service-oriented architecture build on top of
-\ghtorrent: it uses \ghtorrent's data collection mechanisms to react in near
+\ghtorrent~\cite{G13}: it uses \ghtorrent's data collection mechanisms to react in near
 real-time to changes to pull request state and databases as a source of easy to
 access metadata.
 
@@ -299,7 +299,9 @@ a multitude of criteria, including all features reported in
 Section~\ref{sec:features}.  A key feature of the visualizer is support for user
 feedback on the prioritization; the user can report if the proposed
 prioritization order is correct and change it to indicate what is the correct
-one.\erik{Is this still true?}
+one. \erik{Is this still true? Answer: I think it is not really a key feature,
+but it could be in the future. Yes, the user is able to report a thumbs up/down,
+but it is only collected yet, it doesn't feed the algorithm. }
 
 The visualizer is implemented as a static web application; a
 screenshot of its main page can be seen in Figure~\ref{fig:ui}).
@@ -308,7 +310,7 @@ screenshot of its main page can be seen in Figure~\ref{fig:ui}).
   \centering
   \includegraphics[width=0.5\textwidth]{../figs/interface.pdf}
   \caption[The user interface]
-  {The user interface. It shows an ordered list of pull requests that need attention. \erik{Please provide a screen shot with one PR expanded, also showing the feedback option}}
+  {The user interface. It shows an ordered list of pull requests that need attention.}
   \label{fig:ui}
 \end{figure}
 
