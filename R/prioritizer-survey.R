@@ -117,23 +117,36 @@ search.list.by.value <- function(l, val) {
   names(l[!is.na(match(l, val))])
 }
 
+store.pdf <- function(data, name, where = '../figs') {
+  tryCatch({
+    pdf(file.path(where, name))
+    plot(data)
+  }, finally = {dev.off()}
+  );
+}
+
 trim <- function (x) gsub("^\\s+|\\s+$", "", x)
 
 prioritizer <- read.csv("responses-prioritizer.csv")
 prioritizer <- rename(prioritizer, column.mappings)
 
-plot.likert.data(prioritizer, "Q3", 
+p1 <- plot.likert.data(prioritizer, "Q3",
                  c("Useless", "Not so useful", "Useful", "Very useful"),
-                 "Rate the usefulness of the following features")
+                 "Usefulness of Prioritizer features")
 
-plot.likert.data(prioritizer, "Q5", 
+p2 <- plot.likert.data(prioritizer, "Q5", 
                  c("Strongly disgree", "Disagree", "Agree", "Strongly agree"),
-                 "Rate the usability of the PRioritizer service")
+                 "Usefulness of the Prioritizer service")
 
-plot.likert.data(prioritizer, "Q7", 
+p3 <- plot.likert.data(prioritizer, "Q7", 
                  c("Strongly disgree", "Disagree", "Agree", "Strongly agree"),
-                 "Rate the following aspects of the PRioritizer service")
+                 "Aspects of the PRioritizer service")
 
-plot.likert.data(prioritizer, "Q8",
+p4 <- plot.likert.data(prioritizer, "Q8",
                  c("Useless", "Not so useful", "Useful", "Very useful"),
-                 "Rate the importance of the following future features")
+                 "Importance of future features")
+
+store.pdf(p1, "feature-userfulness.pdf")
+store.pdf(p2, "service-userfulness.pdf")
+store.pdf(p3, "service-aspects.pdf")
+store.pdf(p4, "future-features.pdf")

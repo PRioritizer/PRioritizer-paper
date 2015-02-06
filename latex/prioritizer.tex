@@ -3,7 +3,8 @@
 \usepackage{url}
 \usepackage{graphicx}
 \usepackage{caption}
-\usepackage{subcaption}
+%\usepackage{subcaption}
+\usepackage{subfigure}
 \usepackage{hyperref}
 \usepackage{url}
 \usepackage{times}
@@ -144,7 +145,7 @@ indicates whether the received a user action in the following time window. A
 machine learning algorithm is then applied on historical data to build a model
 for predicting whether current pull requests will receive user updates in the
 following time window. The 3 pull requests with the highest probability to be
-updated are classified as the important ones. 
+updated are classified as the important ones.
 
 \subsection{Features}
 \label{sec:features}
@@ -326,44 +327,43 @@ truth.  We ran the three algorithms against each project with a 10-fold random
 selection cross-validation. The models were trained with 90\% training data and
 10\% testing data.
 
-In table~\ref{tab:alg-compare}, we see how the three algorithms performed. Both
-Logistic Regression and Na\"ive Bayes perform badly on precision and accuracy,
-which were our top priorities.  On the other hand, Random Forests perform well
-over all, even though the recall performance leaves something to be desired. To
-improve the performance, we tried several optimisations like dataset balancing
-and feature pruning to no avail.
+The results show that both Logistic Regression and Na\"ive Bayes perform badly
+on precision and accuracy, which were our top priorities.  On the other hand,
+Random Forests perform well over all, even though the recall performance leaves
+something to be desired. To improve the performance, we tried several
+optimisations like dataset balancing and feature pruning to no avail.
 
-\begin{table}
-  \begin{tabular}{lrrrrc}
-    \hline
-    \textbf{Algorithm} & \textbf{5\%} & \textbf{Mean} & \textbf{StDev} & \textbf{95\%} & \textbf{Histogram} \\
-    \hline
-
-    \bf{Logistic Regression}\\
-    Area Under Curve & 0.71 & 0.81 & 0.06 & 0.91 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-LRauc.pdf} \\
-    Accuracy & 0.52 & 0.62 & 0.06 & 0.72 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-LRacc.pdf} \\
-    Precision & 0.06 & 0.36 & 0.25 & 0.88 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-LRprec.pdf} \\
-    Recall & 0.66 & 0.83 & 0.09 & 0.95 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-LRrec.pdf} \\
-    F1 & 0.12 & 0.45 & 0.21 & 0.77 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-LRf1.pdf} \\
-
-    \bf{Naive Bayes}\\
-    Area Under Curve & 0.65 & 0.75 & 0.06 & 0.86 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-NBauc.pdf} \\
-    Accuracy & 0.52 & 0.60 & 0.06 & 0.69 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-NBacc.pdf} \\
-    Precision & 0.06 & 0.34 & 0.23 & 0.82 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-NBprec.pdf} \\
-    Recall & 0.63 & 0.79 & 0.09 & 0.94 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-NBrec.pdf} \\
-    F1 & 0.11 & 0.42 & 0.20 & 0.73 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-NBf1.pdf} \\
-
-    \bf{Random Forest}\\
-    Area Under Curve & 0.81 & 0.89 & 0.05 & 0.95 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-RFauc.pdf} \\
-    Accuracy & 0.73 & 0.86 & 0.07 & 0.96 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-RFacc.pdf} \\
-    Precision & 0.37 & 0.66 & 0.16 & 0.90 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-RFprec.pdf} \\
-    Recall & 0.36 & 0.62 & 0.15 & 0.84 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-RFrec.pdf} \\
-    F1 & 0.38 & 0.63 & 0.15 & 0.87 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-RFf1.pdf} \\
-    \hline
-  \end{tabular}
-  \caption[Comparision of algorithms]{Scores and distributions of algorithm performance across projects.}
-  \label{tab:alg-compare}
-\end{table}
+%\begin{table}
+%  \begin{tabular}{lrrrrc}
+%    \hline
+%    \textbf{Algorithm} & \textbf{5\%} & \textbf{Mean} & \textbf{StDev} & \textbf{95\%} & \textbf{Histogram} \\
+%    \hline
+%
+%    \bf{Logistic Regression}\\
+%    Area Under Curve & 0.71 & 0.81 & 0.06 & 0.91 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-LRauc.pdf} \\
+%    Accuracy & 0.52 & 0.62 & 0.06 & 0.72 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-LRacc.pdf} \\
+%    Precision & 0.06 & 0.36 & 0.25 & 0.88 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-LRprec.pdf} \\
+%    Recall & 0.66 & 0.83 & 0.09 & 0.95 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-LRrec.pdf} \\
+%    F1 & 0.12 & 0.45 & 0.21 & 0.77 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-LRf1.pdf} \\
+%
+%    \bf{Naive Bayes}\\
+%    Area Under Curve & 0.65 & 0.75 & 0.06 & 0.86 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-NBauc.pdf} \\
+%    Accuracy & 0.52 & 0.60 & 0.06 & 0.69 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-NBacc.pdf} \\
+%    Precision & 0.06 & 0.34 & 0.23 & 0.82 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-NBprec.pdf} \\
+%    Recall & 0.63 & 0.79 & 0.09 & 0.94 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-NBrec.pdf} \\
+%    F1 & 0.11 & 0.42 & 0.20 & 0.73 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-NBf1.pdf} \\
+%
+%    \bf{Random Forest}\\
+%    Area Under Curve & 0.81 & 0.89 & 0.05 & 0.95 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-RFauc.pdf} \\
+%    Accuracy & 0.73 & 0.86 & 0.07 & 0.96 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-RFacc.pdf} \\
+%    Precision & 0.37 & 0.66 & 0.16 & 0.90 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-RFprec.pdf} \\
+%    Recall & 0.36 & 0.62 & 0.15 & 0.84 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-RFrec.pdf} \\
+%    F1 & 0.38 & 0.63 & 0.15 & 0.87 & \includegraphics[scale = 0.1, clip = true, trim= 50px 60px 50px 60px]{../figs/hist-results/hist-RFf1.pdf} \\
+%    \hline
+%  \end{tabular}
+%  \caption[Comparision of algorithms]{Scores and distributions of algorithm performance across projects.}
+%  \label{tab:alg-compare}
+%\end{table}
 
 %It is interesting to see that the age is a very dominant factor when we look at
 %the feature importance in figure~\ref{fig:feature-importance}.  This is probably
@@ -394,51 +394,53 @@ of pull request handling practices. Moreover, user directed evaluation (already
 implemented in the visualizer) can help retrofit our machine learning model
 with user preferences.
 
+\begin{figure*}[t]
+\centering
+\subfigure {
+  \includegraphics[scale=0.45]{service-userfulness}
+  \label{fig:service-userfulness}
+}
+\subfigure{
+\includegraphics[scale=0.45]{feature-userfulness.pdf}
+  \label{fig:service-userfulness}
+}
+\caption{User evaluation of the service and individual feature usefulness}
+\label{fig:user-evaluation}
+\end{figure*}
+
 \subsection{Performance characteristics}
 \erik{Can you provide a couple of paragraphs here? Describe our hardware setup, how fast the merge detection is done, how fast it takes to process a pull request
 from start to finish, how much time it takes to import a repository etc}
 
 \subsection{User Evaluation}
 
-To test our service we invited a group of integrators that maintain open source projects.
-The integrators were asked to answer statements on a scale with the following answers: strongly disagree, disagree, agree and strongly agree.
-The values to the answers are ${-2, -1, 1, 2}$ respectively.
-In addition to analysing their answers directly we also correlate the answers to the activity of their project.
-We define the activity of their project as the average number of PR actions per day since the last 6 months.
+We performed a preliminary user evaluation in order to guide our future
+developments of the project as follows: for each of the 450 projects we used for
+benchmarking, we invited core team members of those projects to use it.  The
+invitation was by personal email containing a private link to the prioritizer
+installation for their repository and a survey. The survey consisted of 4 odd
+Likert-scale questions and 4 open ended ones. The Likert-scale questions invited
+users to rate the usefulness of specific features and the overall service
+quality while the open ended questions asked the users for missing features or
+potential improvements. We received 21 answers.
 
-The first questions were about the usefulness of certain features of the service.
-Table~\ref{tab:usefulness} shows the averages of the given answers.
-It can be seen that insight in the Contribution Rate, Test Code and Size are the most usefull features.
+Overall, as can be seen in Figure~\ref{fig:user-eval}, \prioritizer has been
+positively perceived by human evaluators. The users seem to like that they
+can easily obtain an overview of the overall state of pull requests in the
+project. In the open ended responses, the users indicated that mergability
+detection and contributor pull request profiling were their favourite
+features.
 
-\resp{5}{The fact you can see how much the author of the pull request did in the past and how his success rate for getting pull requests in.
-That is really useful information.
-People that have a track record, will have obviously more chance to have their pull request looked at.}
+\resp{5}{The fact you can see how much the author of the pull request did in the past and how his success rate for getting pull requests in.}
 
-However, the main highlight of the service, the Automatic Ordering, is on average neither positive nor negative rated.
+The main highlight of the service, the Automatic Ordering, received mixed
+reviews; 
+
+is on average neither positive nor negative rated.
 This has probably something to do with the reasons why a certain PR is ranked higher than others (\respnum{6,7,9,17,19,20}).
 \resp{17}{It can show us the most pressing pull requests.
 However, it is unclear how this ranking is established, so I'd hope to know why a pull request is considered more urgent then others.}
 
-Another thing that can be observed from table~\ref{tab:usefulness} is that the Target Branch and the Pairwise Conflicts features (the manual features) are rated more usefull for projects with more activity.
-
-\begin{table}
-  \centering
-  \begin{tabular}{lrr}
-    \hline
-    \textbf{Feature} & \textbf{Average} & \textbf{Activity correlation} \\
-    \hline
-    Contribution Rate  &  $0.4286$ &  $0.1124$ \\
-    Has Test Code      &  $0.3333$ &  $0.0186$ \\
-    Size               &  $0.1905$ &  $0.3835$ \\
-    Pairwise Conflicts &  $0.0952$ &  $0.4845$ \\
-    Automatic Ordering &  $0.0000$ & $-0.0149$ \\
-    Target Branch      & $-0.4762$ &  $0.6340$ \\
-    Accept Rate        & $-0.0476$ & $-0.2268$ \\
-    \hline
-  \end{tabular}
-  \caption[Usefulness of features]{Usefulness of features. The average usefulness of the features and their correlation with the project activity.}
-  \label{tab:usefulness}
-\end{table}
 
 The next part is about the usability of the service.
 Around 86\% (18) says that using the service causes no extra overhead.
