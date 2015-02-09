@@ -239,16 +239,14 @@ in the following sections.
 
 \paragraph{GHTorrent}
 \ghtorrent~\cite{G13} mirrors all data exposed from the GitHub \api in
-real time. As such, it maintains 2 databases, an unstructured one (MongDB)
+real time. It monitors the GitHub event timeline \api endpoint and publishes the 
+retrieved data to a queue service (RabbitMQ) where multiple clients can connect to. 
+It also maintains 2 databases, an unstructured one (MongoDB)
 which contains the raw replies from the GitHub \api and a relational one
 (MySQL) which stores indexed historical data for all GitHub repositories.
-To keep track of what is happening on GitHub, is monitors the GitHub event
-timeline \api endpoint and publishes the retrieved data to a queue service
-(RabbitMQ) where multiple clients can connect to.
-\prioritizer uses \ghtorrent as both a data source of historical data and a
-source for live data.
-The live data that the \prioritizer is interested in are events on pull requests triggered by actions such as assignment of the pull request to a specific
-user or merging the pull request.
+\prioritizer uses \ghtorrent as a source for both live and historical data. The live data
+that the \prioritizer is interested in are events on pull requests triggered by actions 
+such as assignment of the pull request to a specific user or merging the pull request.
 
 \paragraph{Watcher}
 The watcher listens to pull request event from \ghtorrent
@@ -257,7 +255,7 @@ and informs the analyzer when pull request events for one of those is
 repositories is received.
 
 \paragraph{Analyzer}
-The analyzer analyzes a pull request events and computers values for
+The analyzer analyzes pull request events and computes values for
 the features presented in Section~\ref{sec:features}. To do so, for each repository,
 it maintains a local Git checkout and a list of open pull requests.
 On every pull request event, it updates both the Git repository with
@@ -307,7 +305,7 @@ but it could be in the future. Yes, the user is able to report a thumbs up/down,
 but it is only collected yet, it doesn't feed the algorithm. }
 
 The visualizer is implemented as a static web application; a
-screenshot of its main page can be seen in Figure~\ref{fig:ui}).
+screenshot of its main page can be seen in Figure~\ref{fig:ui}.
 
 \begin{figure}
   \centering
@@ -415,13 +413,14 @@ with user preferences.
 
 \subsection{Performance characteristics}
 
-We hosted our service on a single machine with 16 GB of RAM memory and a Xeon
-E5-1607 Quad core CPU running at 3GHz. On average it is capable of prioritizing
-6.7 pull requests per second and performs 40 pairwise merges per second. In
+We hosted our service on a machine with a 3 GHz Xeon E5-1607 Quad 
+core CPU and 16 GB of RAM. On average it is capable of prioritizing
+6.7 PRs per second and performs 40 pairwise merges per second. In
 practice it is around 400 pairwise merges per second due to the use of caching.
-The whole process, including updating the local Git clone, takes on average
-1.1 minute to prioritize one repository.
+The whole process of prioritizing one repository, including updating the local Git clone, takes on average
+1.1 minute. 
 
+\andy{I would say the next paragraph can be dropped if we need space}
 When multiple events for big repositories arrive at the same time, a single
 \prioritizer instance processes them sequentially, which can cause a delay of a
 few minutes. This can be solved by starting more watcher instances that
@@ -435,7 +434,7 @@ depending on the size of the project and of its pull requests.
 \subsection{User Evaluation}
 
 We performed a preliminary user evaluation in order to guide our future
-developments of the project as follows: for each of the 450 projects we used for
+developments of \prioritizer . For each of the 450 projects we used for
 benchmarking, we invited core team members of those projects to use it.  The
 invitation was by personal email containing a private link to the prioritizer
 installation for their repository and a survey. The survey consisted of 4 odd
