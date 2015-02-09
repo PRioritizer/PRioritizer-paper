@@ -77,7 +77,7 @@ Email: a.e.zaidman@tudelft.nl}}
 
 \begin{abstract}
 
-In previous work, we observed that in the pull-based development model integrators face challenges with regard to prioritizing work in the face of multiple concurrent pull requests. We present the design and initial implementation of a prototype pull request prioritisation tool called \prioritizer. \prioritizer works like a priority inbox for pull requests, recommending the top 3 pull requests the project owner should focus on. An preliminary user study showed that \prioritizer provides functionality that GitHub is currently lacking, even though users needed more insight into how the priority ranking is established to make \prioritizer really useful.
+In previous work, we observed that in the pull-based development model integrators face challenges with regard to prioritizing work in the face of multiple concurrent pull requests. We present the design and initial implementation of a prototype pull request prioritisation tool called \prioritizer. \prioritizer works like a priority inbox for pull requests, recommending the top 3 pull requests the project owner should focus on. A preliminary user study showed that \prioritizer provides functionality that GitHub is currently lacking, even though users needed more insight into how the priority ranking is established to make \prioritizer really useful.
 
 \end{abstract}
 
@@ -110,19 +110,20 @@ prioritization our findings are summarized in Figure~\ref{fig:prioritization}.
 In this paper, we present the design and initial implementation of a prototype
 pull request prioritization tool, the \prioritizer. \prioritizer works as a
 priority inbox for pull requests: it examines all open pull requests and
-presents to project integrator the top 5 pull requests that need their immediate
+presents project integrators the top 5 pull requests that need their immediate
 attention. It also offers an alternative view to Github's pull request
 interface, which allows developers to sort open pull requests on a multitude of
 criteria, ranging from the pull request's age to its number of pairwise
 conflicts. \prioritizer is a service-oriented architecture build on top of
 \ghtorrent~\cite{G13}: it uses \ghtorrent's data collection mechanisms to react in near
-real-time to changes to pull request state and databases as a source of easy to
+real-time to changes in pull request state \andy{I would drop 2nd part of sentence} and databases as a source of easy to
 access metadata.
 
 
 \begin{figure}[t]
   \begin{center}
     \includegraphics[scale=0.44]{prioritization-criteria}
+    \andy{Figure is currently missing. Forgot to commit?}
   \end{center}
   \caption{Prioritization criteria and their order of application as reported by
   750 integrators.}
@@ -134,7 +135,7 @@ access metadata.
 
 \subsection{Modeling} Contrary to common approaches to work prioritization, which usually produce
 an optimal ordering for open work items based on optimization processes, we
-modelled the pull request prioritization using the priority inbox approach.
+modelled the pull request prioritization using the priority inbox approach~\cite{Conway2011}.
 What \prioritizer tries to do is present the integrators with the 3 pull
 requests that will need their immediate attention. \andy{Need some related
 work support here}
@@ -151,7 +152,7 @@ updated are classified as the important ones.
 
 \subsection{Features}
 \label{sec:features}
-Our feature set was extracted by analysing the results of the survey and
+Our feature set was extracted by analysing the results of the survey~\cite{GZSD15} and
 closely correspond to the developer's answers are reported in
 Figure~\ref{fig:prioritization}. An overview of the selected features can
 be seen in Table~\ref{tab:features}.
@@ -229,12 +230,12 @@ the \ghtorrent project.  When an event arrives the \emph{watcher} component is
 notified (1) and starts prioritizing the project (2).  When the \emph{analyzer}
 gets a prioritization request it fetches a list of open pull requests from
 GitHub and the pull request contents to the local Git clone (3).  When the data
-is fetched, the analyzer each pull request in the list with data from the local
+is fetched, the analyzer processes each pull request in the list with data from the local
 clone and \ghtorrent (4).  The data is now ready to be processed by the
 \emph{predictor} (5), which generates an ordering for the pull requests.  After
 the ordered list is returned to the analyzer (6), the output is generated and
-available for the \emph{visualizer} (7).  Details about the design of each
-individual component are presented in the following sections.
+available for the \emph{visualizer} (7).  Details about the design are presented 
+in the following sections.
 
 \paragraph{GHTorrent}
 \ghtorrent~\cite{G13} mirrors all data exposed from the GitHub \api in
