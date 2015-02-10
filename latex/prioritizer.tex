@@ -118,19 +118,21 @@ other open pull requests (pairwise conflicts). \prioritizer is a service-oriente
     \includegraphics[scale=0.44]{../figs/prioritization-criteria}
   \end{center}
   \caption{Prioritization criteria and their order of application as reported by
-  750 integrators.}
+  750 integrators~\cite{GZSD15}.}
   \label{fig:prioritization}
 \end{figure}
 
 
 \section{Prioritizing pull requests}
 
-\subsection{Modeling} Contrary to common approaches to work prioritization,
-which usually produce an optimal ordering for open work items based on
-optimization processes, we modelled the pull request prioritization using the
-priority inbox approach~\cite{Conway20.09}.  What \prioritizer tries to do is
-present the integrators with the pull requests that will need their immediate
-attention.
+\subsection{Modeling} 
+Contrary to work prioritization approaches that support development-oriented 
+decisions (e.g. bug triaging)~\cite{AnvikTSE2011,Jeong:2009:IBT:1595696.1595715,Tamrawi:2011:FSC:2025113.2025163}, we modelled the pull 
+request prioritization using the priority inbox approach~\cite{Conway2011}. The
+difference lies in that we do not only look at static information with regard to the 
+pull requests, but we also take into account previous actions on pull requests. 
+What \prioritizer tries to do is present the integrators with the pull requests 
+that will need their immediate attention.
 
 To select the important pull requests, \prioritizer uses machine learning.
 Initially, time is split in configurable time windows (currently, 1 day long).
@@ -383,11 +385,11 @@ visualizer) can help retrofit our machine learning model with user preferences.
 \begin{figure*}[t]
 \centering
 \subfigure {
-  \includegraphics[scale=0.44]{service-userfulness.pdf}
+  \includegraphics[scale=0.44]{../figs/service-userfulness.pdf}
   \label{fig:service-userfulness}
 }
 \subfigure{
-\includegraphics[scale=0.44]{feature-userfulness.pdf}
+\includegraphics[scale=0.44]{../figs/feature-userfulness.pdf}
   \label{fig:service-userfulness}
 }
 \caption{User evaluation of the service and individual feature usefulness}
