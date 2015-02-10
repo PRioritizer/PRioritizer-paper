@@ -117,9 +117,11 @@ other open pull requests (pairwise conflicts). \prioritizer is a service-oriente
   \begin{center}
     \includegraphics[scale=0.44]{../figs/prioritization-criteria}
   \end{center}
+  \vspace{-2.5mm}
   \caption{Prioritization criteria and their order of application as reported by
   750 integrators~\cite{GZSD15}.}
   \label{fig:prioritization}
+  \vspace{-5mm}
 \end{figure}
 
 
@@ -130,7 +132,7 @@ Contrary to work prioritization approaches that support development-oriented
 decisions (e.g. bug triaging)~\cite{AnvikTSE2011,Jeong:2009:IBT:1595696.1595715,Tamrawi:2011:FSC:2025113.2025163}, we modelled the pull 
 request prioritization using the priority inbox approach~\cite{Conway2011}. The
 difference lies in that we do not only look at static information with regard to the 
-pull requests, but we also take into account previous actions on pull requests. 
+pull requests, but we also take into account (the dynamics of) previous actions on pull requests. 
 What \prioritizer tries to do is present the integrators with the pull requests 
 that will need their immediate attention.
 
@@ -179,6 +181,7 @@ features can be seen in Table~\ref{tab:features}.
   request activity. The calculation unit is a pull request.
   Histograms (red) are in log scale.}
   \label{tab:features}
+  \vspace{-6mm}
 \end{table*}
 
 One of the top parameters that developers examine when prioritizing is the
@@ -202,12 +205,14 @@ is marked as having tests.
 \section{Design and Implementation}
 \label{sec:design}
 
-\begin{figure}
+\begin{figure}[!t]
   \centering
   \includegraphics[width=0.5\textwidth]{../figs/architecture.pdf}
+  \vspace{-5mm}
   \caption[Diagram of the architecture]
    {Diagram of the architecture. It shows the different data sources and components used by the \prioritizer service.}
   \label{fig:architecture}
+  \vspace{-5mm}
 \end{figure}
 
 We designed \prioritizer as a loosely-coupled architecture based on independent
@@ -277,8 +282,8 @@ main predictor process through file exchange.
 
 \paragraph{Visualizer}
 
-The visualizer visualizes a list of pull requests, enriched with extra
-information extracted from the analysis and prediction phases.  To address
+The visualizer visualizes a list of pull requests, enriched with information 
+extracted from the analysis and prediction phases.  To address
 reported deficiencies in GitHub's pull request user interface (also discovered
 through our user survey), the visualizer supports filtering pull requests based
 on specific branches, originating in specific authors, having conflicts or tests
@@ -288,7 +293,7 @@ Section~\ref{sec:features}.  A key feature of the visualizer is support for user
 feedback on the prioritization; the user can report if the proposed
 prioritization order is correct and change it to indicate what is the correct
 one. At the moment, this information is only collected; in the future, we plan
-to use it in order to improve the prioritization algorithm.
+to use it in order to improve the prioritization. % algorithm.
 
 The visualizer is implemented as a static web application; a
 screenshot of its main page can be seen in Figure~\ref{fig:ui}.
@@ -297,8 +302,9 @@ screenshot of its main page can be seen in Figure~\ref{fig:ui}.
   \centering
   \includegraphics[width=0.5\textwidth]{../figs/interface.pdf}
   \caption[The user interface]
-  {The user interface. It shows an ordered list of pull requests that need attention.}
+  {The user interface shows an ordered list of pull requests that need attention.}
   \label{fig:ui}
+  \vspace{-9.5mm}
 \end{figure}
 
 \section{Initial Evaluation}
@@ -392,8 +398,10 @@ visualizer) can help retrofit our machine learning model with user preferences.
 \includegraphics[scale=0.44]{../figs/feature-userfulness.pdf}
   \label{fig:service-userfulness}
 }
+\vspace{-3.5mm}
 \caption{User evaluation of the service and individual feature usefulness}
 \label{fig:user-evaluation}
+\vspace{-5mm}
 \end{figure*}
 
 \subsection{Performance characteristics}
@@ -436,8 +444,8 @@ The main highlight of the service, automatic prioritization, received mixed
 reviews; an equal number of people think that it is very useful and not useful at
 the same time. From the open ended answers, we found that integrators do not
 understand how automatic prioritization works. As
-R17 puts it: ``\emph{It can show us the most pressing pull requests. However, it is unclear how this ranking is established, so I’d hope to know why a pull request is considered more urgent then others}''. As a consequence, 86\%
-of the integrators mentioned that they would want more insight on how the automatic ordering works in future versions.
+R17 puts it: ``\emph{It can show us the most pressing pull requests. However, it is unclear how this ranking is established, so I'd hoped to know why a pull request is considered more urgent then others}''. As such, 86\%
+of the integrators mentioned that they want more insight on how the automatic ordering works in future versions.
 
 Finally we asked the respondents if they would use \prioritizer for their project. 57\% (12) of the respondent gave a positive answer.
 We correlated the size of the project to the probability that integrators would
@@ -445,12 +453,19 @@ give a positive answer to the above question and found that integrators in
 bigger projects tend to find prioritizer more useful
 ($\rho = 0.4307$).
 
-\section{Related Work}
+%\section{Related Work}
 
 \section{Conclusions and Future Work}
+In this paper we have presented a pull-request prioritization approach called \prioritizer . \prioritizer enables a priority inbox style approach for integrators that face challenges in the face of multiple concurrent pull requests. The priority inbox approach does not only take static information with regard to pull requests into account, instead it also considers the dynamics of pull requests.   
+%
+A preliminary user study has shown that \prioritizer provides functionality that GitHub is currently lacking. In particular, the participants appreciated the easy to comprehend overview of the overall project pull request status, the pairwise conflict detection, target branches and pull request contributed profile. The verdict for the automatic prioritization is mixed, with participants requesting more insight on how the automatic ordering works. 
 
-\section*{Acknowledgements} The authors would like to thank Audris Mockus for
-fruitful discussions that influenced the design of the prioritization algorithm.
+Our three main avenues for future work are: (1) adding more insight into how the prioritization works, (2) enabling the incorporation of the user feedback into our algorithm and (3) improving scalability.
+
+
+
+
+\section*{Acknowledgements} The authors would like to thank Audris Mockus for discussions that influenced the design of the prioritization algorithm.
 
 \bibliographystyle{IEEEtran}
 \bibliography{prioritizer}
