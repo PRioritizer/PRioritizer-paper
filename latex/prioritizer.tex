@@ -153,7 +153,7 @@ updated are classified as the important ones.
 \subsection{Features}
 \label{sec:features}
 Our feature set was extracted by analysing the results of the survey~\cite{GZSD15} and
-closely correspond to the developer's answers are reported in
+closely correspond to the developer's answers which are reported in
 Figure~\ref{fig:prioritization}. An overview of the selected features can
 be seen in Table~\ref{tab:features}.
 
@@ -400,7 +400,7 @@ with user preferences.
 \begin{figure*}[t]
 \centering
 \subfigure {
-  \includegraphics[scale=0.45]{service-userfulness}
+  \includegraphics[scale=0.45]{service-userfulness.pdf}
   \label{fig:service-userfulness}
 }
 \subfigure{
@@ -443,40 +443,34 @@ users to rate the usefulness of specific features and the overall service
 quality while the open ended questions asked the users for missing features or
 potential improvements. We received 21 answers.
 
-Overall, as can be seen in Figure~\ref{fig:user-eval}, \prioritizer has been
-positively perceived by human evaluators. The users seem to like that they
-can easily obtain an overview of the overall state of pull requests in the
-project. In the open ended responses, the users indicated that mergability
-detection and contributor pull request profiling were their favourite
-features.
-
-\resp{5}{The fact you can see how much the author of the pull request did in the past and how his success rate for getting pull requests in.}
+Overall, \prioritizer has been positively perceived (Figure~\ref{fig:user-eval}). 
+The users seem to like that they can easily obtain an overview of the overall 
+state of pull requests in the project. They have also indicated that mergability 
+detection and contributor pull request profiling were their favourite features. 
+Respondent 5 (R5): \emph{The fact you can see how much the author of the 
+pull request did in the past and how his success rate for getting pull requests in.}
 
 The main highlight of the service, the Automatic Ordering, received mixed
-reviews;
-
-is on average neither positive nor negative rated.
-This has probably something to do with the reasons why a certain PR is ranked higher than others (\respnum{6,7,9,17,19,20}).
+reviews: on average, it is rated neither positively or negatively. This has probably
+something to do with the reasons why a certain PR is ranked higher than others (\respnum{6,7,9,17,19,20}).
 \resp{17}{It can show us the most pressing pull requests.
 However, it is unclear how this ranking is established, so I'd hope to know why a pull request is considered more urgent then others.}
 
 
 The next part is about the usability of the service.
 Around 86\% (18) says that using the service causes no extra overhead.
-The given answers have a correlation of $0.4441$ with the activity of the project.
+The given answers have a correlation of $0.4441$ with the activity of the project. \andy{What about probability and strength?}
 
-76\% (16) of the respondents thinks the prioritized overview of PRs is clear enough.
+76\% (16) of the respondents thinks the prioritized overview of PRs is clear.
 \resp{1}{I can see at a glance which PRs can be merged automatically.
 For some reason the Github PR interface does not show this, you have to click on a PR to find out if it can be automatically merged.
 In one of my projects, PRs often sit unmerged for a while and have to be rebased, so it's better to know when rebasing is necessary sooner, rather than later.}
 
 Only 62\% (13) of the respondents agree that the set of used and presented fields is complete.
 It seems that the integrators of more active projects tend to disagree, with a correlation of $-0.4054$.
-This probably caused by the fact that the prioritization service lacks support for GitHub labels and milestones.
-
-Later on in the questionaire we asked to rate some features for a next version of the prioritization service.
-71\% (15) of the respondents indicated that they want to prioritize according to labels.
-The correlation between the activity and the lack of label support is $0.4443$.
+This is likely due to the fact that \prioritizer lacks support for GitHub labels and milestones. In fact, 71\%~(15) 
+of the respondents indicated that they want to prioritize according to labels.
+The correlation between the activity and the lack of label support is $0.4443$. \andy{p value, strength? If we don't have that I would drop the correlation altogether}
 \resp{7}{I like the autosorting, but I'd like more control over it.
 I use labels a lot for things, so for example, `needs followup' is a label that means I need to take no action, so I'd love to be able to tell you that.}
 
@@ -493,12 +487,11 @@ I've never had a problem prioritising pull requests, we keep the number of open 
 Generally, I respond to all pull requests raised on the project as soon as I receive the notification for them.}
 
 The results are not very conclusive.
-It seems that in its current form the automatic ordering is not adequate.
-Users want to see why a PR is considered more important than others and have more control over the learning process.
+It seems that in its current form the automatic ordering is not adequate, as users want to see why a 
+PR is considered more important than others and have more control over the learning process.
 On the other hand the manual sorting and filtering options are positively evaluated.
-The Pairwise Conflicts, Target Branch and Size are the most popular.
-Although the latter two are fairly trivial features GitHub's interface doesn't support them.
-This might be the reason why the are rated useful.
+The Pairwise Conflicts, Target Branch and Size options are the most popular.
+Although the latter two are fairly trivial features, GitHub's interface doesn't support them.
 Finally, a narrow majority indicated that they will use the service for their project.
 
 \section{Related Work}
